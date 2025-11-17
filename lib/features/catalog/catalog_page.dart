@@ -17,13 +17,13 @@ class CatalogPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final categories = ['all', 'Apartment', 'Villa', 'Beach House'];
-    final cities = ['Dubai', 'Al Ula', 'Muscat'];
+    final cities = ['All', 'Dubai', 'Al Ula', 'Muscat', 'Riyadh', 'Jeddah', 'Abha', 'Doha', 'Manama'];
     return Scaffold(
       appBar: AppBar(
         title: Text(t.translate('catalog')),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () => _showFilters(context, t),
             icon: const Icon(Icons.filter_alt_outlined),
           ),
         ],
@@ -59,8 +59,8 @@ class CatalogPage extends StatelessWidget {
                     final label = cities[index];
                     return AnimatedFilterChip(
                       label: label,
-                      selected: itemsController.city == label,
-                      onTap: () => itemsController.setCity(label),
+                      selected: itemsController.city == (label == 'All' ? null : label),
+                      onTap: () => itemsController.setCity(label == 'All' ? null : label),
                     );
                   },
                   separatorBuilder: (_, __) => const SizedBox(width: 8),
@@ -106,6 +106,78 @@ class CatalogPage extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  void _showFilters(BuildContext context, AppLocalizations t) {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) {
+        final items = itemsController;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final range = items.selectedPriceRange;
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.translate('filters'), style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  Text(t.translate('filter_price')),
+                  RangeSlider(
+                    values: range,
+                    min: items.priceBounds.start,
+                    max: items.priceBounds.end,
+                    divisions: 6,
+                    labels: RangeLabels(
+                      '${range.start.toStringAsFixed(0)}',
+                      '${range.end.toStringAsFixed(0)}',
+                    ),
+                    onChanged: (values) {
+                      setState(() => items.setPriceRange(values));
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Text(t.translate('filter_city')),
+                  DropdownButton<String?>(
+                    value: items.city,
+                    isExpanded: true,
+                    items: ['All', 'Dubai', 'Al Ula', 'Muscat', 'Riyadh', 'Jeddah', 'Abha', 'Doha', 'Manama']
+                        .map(
+                          (city) => DropdownMenuItem(
+                            value: city == 'All' ? null : city,
+                            child: Text(city),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) => setState(() => items.setCity(value)),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          items.clearFilters();
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(t.translate('clear')),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(t.translate('apply_filters')),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

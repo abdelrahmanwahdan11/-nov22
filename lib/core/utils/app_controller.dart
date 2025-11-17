@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,8 @@ class AppController extends ChangeNotifier {
   AppController() {
     _loadPreferences();
   }
+
+  final Completer<void> _readyCompleter = Completer<void>();
 
   ThemeMode _themeMode = ThemeMode.light;
   Color _primaryColor = AppTheme.defaultPrimary;
@@ -23,6 +26,7 @@ class AppController extends ChangeNotifier {
   bool get hasSeenOnboarding => _hasSeenOnboarding;
   bool get isLoggedIn => _isLoggedIn;
   bool get isReady => _isReady;
+  Future<void> get ready => _readyCompleter.future;
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,6 +37,9 @@ class AppController extends ChangeNotifier {
     _hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
     _isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     _isReady = true;
+    if (!_readyCompleter.isCompleted) {
+      _readyCompleter.complete();
+    }
     notifyListeners();
   }
 

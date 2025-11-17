@@ -8,10 +8,11 @@ import 'core/utils/app_controller.dart';
 import 'core/utils/app_scope.dart';
 import 'features/common/controllers/items_controller.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appController = AppController();
   final itemsController = ItemsController();
+  await Future.wait([appController.ready, itemsController.ready]);
   runApp(AppRoot(appController: appController, itemsController: itemsController));
 }
 
