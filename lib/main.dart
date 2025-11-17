@@ -56,6 +56,15 @@ class _AppRootState extends State<AppRoot> {
               themeMode: widget.appController.themeMode,
               initialRoute: '/',
               onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, widget.itemsController),
+              builder: (context, child) {
+                final data = MediaQuery.of(context);
+                return MediaQuery(
+                  data: data.copyWith(
+                    textScaler: TextScaler.linear(widget.appController.textScale),
+                  ),
+                  child: child ?? const SizedBox.shrink(),
+                );
+              },
             ),
           ),
         );

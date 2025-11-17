@@ -16,6 +16,8 @@ class ItemCard extends StatelessWidget {
     this.isFavorite = false,
     this.isInCompare = false,
     this.showNoteBadge = false,
+    this.compact = false,
+    this.margin,
   });
 
   final Item item;
@@ -26,16 +28,20 @@ class ItemCard extends StatelessWidget {
   final bool isFavorite;
   final bool isInCompare;
   final bool showNoteBadge;
+  final bool compact;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final t = AppLocalizations.of(context);
     final hasNote = (note ?? '').isNotEmpty;
+    final imageHeight = compact ? 150.0 : 180.0;
+    final contentPadding = compact ? 10.0 : 12.0;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        margin: margin ?? const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(20),
@@ -58,7 +64,7 @@ class ItemCard extends StatelessWidget {
                   children: [
                     Image.network(
                       item.image,
-                      height: 180,
+                      height: imageHeight,
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
@@ -120,7 +126,7 @@ class ItemCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(contentPadding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -141,10 +147,10 @@ class ItemCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: compact ? 6 : 8),
                   Wrap(
-                    spacing: 12,
-                    runSpacing: 6,
+                    spacing: compact ? 8 : 12,
+                    runSpacing: compact ? 4 : 6,
                     children: [
                       _Attribute(icon: IconlyLight.wallet, label: item.price),
                       _Attribute(icon: IconlyLight.home, label: item.type),
@@ -155,7 +161,7 @@ class ItemCard extends StatelessWidget {
                     ],
                   ),
                   if (hasNote) ...[
-                    const SizedBox(height: 6),
+                    SizedBox(height: compact ? 4 : 6),
                     Row(
                       children: [
                         const Icon(Icons.sticky_note_2_outlined, size: 16),
@@ -171,7 +177,7 @@ class ItemCard extends StatelessWidget {
                       ],
                     ),
                   ],
-                  const SizedBox(height: 8),
+                  SizedBox(height: compact ? 6 : 8),
                   Row(
                     children: [
                       TextButton.icon(

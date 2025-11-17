@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/item_card.dart';
 import '../../core/widgets/skeleton_card.dart';
+import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
 import '../item_details/item_details_page.dart';
 
@@ -82,6 +83,7 @@ class _SearchPageState extends State<SearchPage> {
           final viewed = widget.itemsController.recentlyViewedItems;
           final saved = widget.itemsController.savedSearches;
           final isSaved = widget.itemsController.isSearchSaved(_controller.text);
+          final compactCards = AppScope.of(context).compactCards;
           if (_loading) {
             return ListView(children: List.generate(4, (index) => const SkeletonCard()));
           }
@@ -196,6 +198,8 @@ class _SearchPageState extends State<SearchPage> {
                             isInCompare: widget.itemsController.compare.contains(item.id),
                             note: widget.itemsController.itemNotes[item.id],
                             showNoteBadge: true,
+                            compact: compactCards,
+                            margin: EdgeInsets.zero,
                           ),
                         );
                       },
@@ -241,6 +245,7 @@ class _SearchPageState extends State<SearchPage> {
                     isInCompare: widget.itemsController.compare.contains(item.id),
                     note: widget.itemsController.itemNotes[item.id],
                     showNoteBadge: true,
+                    compact: compactCards,
                   ),
                 )
                 .toList(),

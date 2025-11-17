@@ -4,6 +4,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/filter_chip.dart';
 import '../../core/widgets/item_card.dart';
 import '../../core/widgets/skeleton_card.dart';
+import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
 import '../item_details/item_details_page.dart';
 
@@ -16,6 +17,9 @@ class CatalogPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final app = AppScope.of(context);
+    final compactCards = app.compactCards;
+    final useGridLayout = app.useGridLayout;
     final categories = ['all', 'Apartment', 'Villa', 'Beach House'];
     final cities = [
       'All',
@@ -46,6 +50,11 @@ class CatalogPage extends StatelessWidget {
             ],
           ),
           IconButton(
+            tooltip: useGridLayout ? t.translate('list_view') : t.translate('grid_view'),
+            onPressed: () => app.setUseGridLayout(!useGridLayout),
+            icon: Icon(useGridLayout ? Icons.view_agenda_outlined : Icons.grid_view),
+          ),
+          IconButton(
             onPressed: () => _showFilters(context, t),
             icon: const Icon(Icons.filter_alt_outlined),
           ),
@@ -63,6 +72,56 @@ class CatalogPage extends StatelessWidget {
               default:
                 return t.translate('sort_recent');
             }
+          }
+          Widget content;
+          if (itemsController.isLoading) {
+            content = ListView(children: List.generate(4, (i) => const SkeletonCard()));
+          } else if (useGridLayout) {
+            content = GridView.builder(
+              padding: const EdgeInsets.all(12),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.72,
+              ),
+              itemCount: itemsController.items.length,
+              itemBuilder: (context, index) {
+                final item = itemsController.items[index];
+                return ItemCard(
+                  item: item,
+                  onTap: () => Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item),
+                  onToggleFavorite: () => itemsController.toggleFavorite(item.id),
+                  onToggleCompare: () => itemsController.toggleCompare(item.id),
+                  isFavorite: itemsController.favorites.contains(item.id),
+                  isInCompare: itemsController.compare.contains(item.id),
+                  note: itemsController.itemNotes[item.id],
+                  showNoteBadge: true,
+                  compact: compactCards,
+                  margin: EdgeInsets.zero,
+                );
+              },
+            );
+          } else {
+            content = ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              itemCount: itemsController.items.length,
+              itemBuilder: (context, index) {
+                final item = itemsController.items[index];
+                return ItemCard(
+                  item: item,
+                  onTap: () => Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item),
+                  onToggleFavorite: () => itemsController.toggleFavorite(item.id),
+                  onToggleCompare: () => itemsController.toggleCompare(item.id),
+                  isFavorite: itemsController.favorites.contains(item.id),
+                  isInCompare: itemsController.compare.contains(item.id),
+                  note: itemsController.itemNotes[item.id],
+                  showNoteBadge: true,
+                  compact: compactCards,
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                );
+              },
+            );
           }
           return Column(
             children: [
@@ -123,31 +182,7 @@ class CatalogPage extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: itemsController.isLoading
-                    ? ListView(children: List.generate(4, (i) => const SkeletonCard()))
-                    : GridView.builder(
-                        padding: const EdgeInsets.all(12),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 0.72,
-                        ),
-                        itemCount: itemsController.items.length,
-                        itemBuilder: (context, index) {
-                          final item = itemsController.items[index];
-                          return ItemCard(
-                            item: item,
-                            onTap: () => Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item),
-                          onToggleFavorite: () => itemsController.toggleFavorite(item.id),
-                          onToggleCompare: () => itemsController.toggleCompare(item.id),
-                          isFavorite: itemsController.favorites.contains(item.id),
-                          isInCompare: itemsController.compare.contains(item.id),
-                          note: itemsController.itemNotes[item.id],
-                          showNoteBadge: true,
-                        );
-                      },
-                    ),
+                child: content,
               ),
               if (itemsController.hasMore)
                 Padding(

@@ -18,6 +18,9 @@ class AppController extends ChangeNotifier {
   Locale _locale = const Locale('ar');
   bool _hasSeenOnboarding = false;
   bool _isLoggedIn = false;
+  double _textScale = 1.0;
+  bool _compactCards = false;
+  bool _useGridLayout = true;
   bool _isReady = false;
 
   ThemeMode get themeMode => _themeMode;
@@ -25,17 +28,30 @@ class AppController extends ChangeNotifier {
   Locale get locale => _locale;
   bool get hasSeenOnboarding => _hasSeenOnboarding;
   bool get isLoggedIn => _isLoggedIn;
+  double get textScale => _textScale;
+  bool get compactCards => _compactCards;
+  bool get useGridLayout => _useGridLayout;
   bool get isReady => _isReady;
   Future<void> get ready => _readyCompleter.future;
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    _themeMode = ThemeMode.values[prefs.getInt('themeMode') ?? ThemeMode.light.index];
+    final storedThemeIndex = prefs.getInt('themeMode');
+    if (storedThemeIndex != null &&
+        storedThemeIndex >= 0 &&
+        storedThemeIndex < ThemeMode.values.length) {
+      _themeMode = ThemeMode.values[storedThemeIndex];
+    } else {
+      _themeMode = ThemeMode.light;
+    }
     final colorValue = prefs.getInt('primaryColor') ?? AppTheme.defaultPrimary.value;
     _primaryColor = Color(colorValue);
     _locale = Locale(prefs.getString('locale') ?? 'ar');
     _hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
     _isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    _textScale = (prefs.getDouble('textScale') ?? 1.0).clamp(0.9, 1.2).toDouble();
+    _compactCards = prefs.getBool('compactCards') ?? false;
+    _useGridLayout = prefs.getBool('useGridLayout') ?? true;
     _isReady = true;
     if (!_readyCompleter.isCompleted) {
       _readyCompleter.complete();
@@ -75,6 +91,27 @@ class AppController extends ChangeNotifier {
     _isLoggedIn = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', value);
+    notifyListeners();
+  }
+
+  Future<void> setTextScale(double value) async {
+    _textScale = value.clamp(0.9, 1.2).toDouble();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('textScale', _textScale);
+    notifyListeners();
+  }
+
+  Future<void> setCompactCards(bool value) async {
+    _compactCards = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('compactCards', value);
+    notifyListeners();
+  }
+
+  Future<void> setUseGridLayout(bool value) async {
+    _useGridLayout = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('useGridLayout', value);
     notifyListeners();
   }
 }

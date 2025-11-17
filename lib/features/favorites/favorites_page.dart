@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/item_card.dart';
 import '../../core/widgets/skeleton_card.dart';
+import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
 import '../item_details/item_details_page.dart';
 import '../home/home_page.dart';
@@ -22,6 +23,7 @@ class FavoritesPage extends StatelessWidget {
         animation: itemsController,
         builder: (context, _) {
           final favorites = itemsController.favoriteItems;
+          final compactCards = AppScope.of(context).compactCards;
           if (itemsController.isLoading) {
             return ListView(children: List.generate(3, (index) => const SkeletonCard()));
           }
@@ -44,6 +46,7 @@ class FavoritesPage extends StatelessWidget {
                 isInCompare: itemsController.compare.contains(item.id),
                 note: itemsController.itemNotes[item.id],
                 showNoteBadge: true,
+                compact: compactCards,
               );
             },
           );

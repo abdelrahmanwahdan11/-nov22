@@ -6,6 +6,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/filter_chip.dart';
 import '../../core/widgets/item_card.dart';
 import '../../core/widgets/skeleton_card.dart';
+import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
 import '../common/models/visit_request.dart';
 import '../favorites/favorites_page.dart';
@@ -46,6 +47,7 @@ class HomePage extends StatelessWidget {
         builder: (context, _) {
           final recentlyViewed = itemsController.recentlyViewedItems;
           final nextVisit = itemsController.nextVisit;
+          final compactCards = AppScope.of(context).compactCards;
           return RefreshIndicator(
             onRefresh: itemsController.refresh,
             child: ListView(
@@ -179,6 +181,8 @@ class HomePage extends StatelessWidget {
                             isInCompare: itemsController.compare.contains(item.id),
                             note: itemsController.itemNotes[item.id],
                             showNoteBadge: true,
+                            compact: compactCards,
+                            margin: EdgeInsets.zero,
                           ),
                         );
                       },
@@ -220,6 +224,7 @@ class HomePage extends StatelessWidget {
                       isInCompare: itemsController.compare.contains(item.id),
                       note: itemsController.itemNotes[item.id],
                       showNoteBadge: true,
+                      compact: compactCards,
                     ),
                   ),
                 if (itemsController.hasMore)
