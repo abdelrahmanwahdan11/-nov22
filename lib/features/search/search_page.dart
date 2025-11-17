@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconly/iconly.dart';
 
 import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/item_card.dart';
@@ -6,6 +7,7 @@ import '../../core/widgets/skeleton_card.dart';
 import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
 import '../item_details/item_details_page.dart';
+import '../settings/settings_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key, required this.itemsController});
@@ -75,6 +77,12 @@ class _SearchPageState extends State<SearchPage> {
           onChanged: _performSearch,
           onSubmitted: _performSearch,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+          )
+        ],
       ),
       body: AnimatedBuilder(
         animation: widget.itemsController,

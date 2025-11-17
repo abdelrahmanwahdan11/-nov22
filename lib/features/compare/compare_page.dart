@@ -6,6 +6,7 @@ import '../common/controllers/items_controller.dart';
 import '../common/models/item.dart';
 import '../item_details/item_details_page.dart';
 import '../home/home_page.dart';
+import '../settings/settings_page.dart';
 
 class ComparePage extends StatelessWidget {
   const ComparePage({super.key, required this.itemsController});
@@ -42,7 +43,15 @@ class ComparePage extends StatelessWidget {
       _CompareAttribute(title: t.translate('ai_info'), value: (item) => item.description ?? t.translate('ai_info_placeholder')),
     ];
     return Scaffold(
-      appBar: AppBar(title: Text(t.translate('compare'))),
+      appBar: AppBar(
+        title: Text(t.translate('compare')),
+        actions: [
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+          )
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         scrollDirection: Axis.horizontal,

@@ -4,9 +4,12 @@ import 'package:iconly/iconly.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/utils/app_scope.dart';
 import '../ai_info_placeholder/ai_info_placeholder_page.dart';
+import '../about/about_page.dart';
 import '../common/controllers/items_controller.dart';
 import '../compare/compare_page.dart';
 import '../favorites/favorites_page.dart';
+import '../guides/guides_page.dart';
+import '../help/help_center_page.dart';
 import '../item_details/item_details_page.dart';
 import '../settings/settings_page.dart';
 import '../auth/login/login_page.dart';
@@ -21,7 +24,15 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(t.translate('profile'))),
+      appBar: AppBar(
+        title: Text(t.translate('profile')),
+        actions: [
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+          )
+        ],
+      ),
       body: AnimatedBuilder(
         animation: itemsController,
         builder: (context, _) {
@@ -96,6 +107,21 @@ class ProfilePage extends StatelessWidget {
                 leading: const Icon(IconlyLight.setting),
                 title: Text(t.translate('settings')),
                 onTap: () => Navigator.of(context).pushNamed(SettingsPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.help_center_outlined),
+                title: Text(t.translate('help_center')),
+                onTap: () => Navigator.of(context).pushNamed(HelpCenterPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.menu_book_outlined),
+                title: Text(t.translate('guides')),
+                onTap: () => Navigator.of(context).pushNamed(GuidesPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(t.translate('about_app')),
+                onTap: () => Navigator.of(context).pushNamed(AboutPage.route),
               ),
               ListTile(
                 leading: const Icon(IconlyLight.paper),

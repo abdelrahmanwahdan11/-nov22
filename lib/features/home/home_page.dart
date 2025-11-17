@@ -7,12 +7,16 @@ import '../../core/widgets/filter_chip.dart';
 import '../../core/widgets/item_card.dart';
 import '../../core/widgets/skeleton_card.dart';
 import '../../core/utils/app_scope.dart';
+import '../about/about_page.dart';
 import '../common/controllers/items_controller.dart';
 import '../common/models/visit_request.dart';
 import '../favorites/favorites_page.dart';
+import '../guides/guides_page.dart';
+import '../help/help_center_page.dart';
 import '../item_details/item_details_page.dart';
 import '../notifications/notifications_page.dart';
 import '../search/search_page.dart';
+import '../settings/settings_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.itemsController});
@@ -40,6 +44,10 @@ class HomePage extends StatelessWidget {
             icon: const Icon(IconlyLight.notification),
             onPressed: () => Navigator.of(context).pushNamed(NotificationsPage.route),
           ),
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+          ),
         ],
       ),
       body: AnimatedBuilder(
@@ -61,6 +69,42 @@ class HomePage extends StatelessWidget {
                   ),
                 _HeroCard(itemsController: itemsController),
                 _MapPreview(itemsController: itemsController),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(t.translate('app_shortcuts'), style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        children: [
+                          ActionChip(
+                            avatar: const Icon(IconlyLight.setting, size: 18),
+                            label: Text(t.translate('settings_shortcut')),
+                            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.help_center_outlined, size: 18),
+                            label: Text(t.translate('help_center')),
+                            onPressed: () => Navigator.of(context).pushNamed(HelpCenterPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.menu_book_outlined, size: 18),
+                            label: Text(t.translate('guides')),
+                            onPressed: () => Navigator.of(context).pushNamed(GuidesPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.info_outline, size: 18),
+                            label: Text(t.translate('about_app')),
+                            onPressed: () => Navigator.of(context).pushNamed(AboutPage.route),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
                 Builder(builder: (context) {
                   final savedMatches = itemsController.savedSearches
                       .where((saved) => saved.alertsEnabled)

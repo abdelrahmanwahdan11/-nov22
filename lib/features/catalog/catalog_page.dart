@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconly/iconly.dart';
 
 import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/filter_chip.dart';
@@ -7,6 +8,7 @@ import '../../core/widgets/skeleton_card.dart';
 import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
 import '../item_details/item_details_page.dart';
+import '../settings/settings_page.dart';
 
 class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key, required this.itemsController});
@@ -57,6 +59,10 @@ class CatalogPage extends StatelessWidget {
           IconButton(
             onPressed: () => _showFilters(context, t),
             icon: const Icon(Icons.filter_alt_outlined),
+          ),
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
           ),
         ],
       ),

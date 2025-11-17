@@ -4,6 +4,7 @@ import 'package:iconly/iconly.dart';
 import '../../core/localization/app_localizations.dart';
 import '../common/controllers/items_controller.dart';
 import '../item_details/item_details_page.dart';
+import '../settings/settings_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key, required this.itemsController});
@@ -28,7 +29,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
           TextButton(
             onPressed: () => setState(() => _cleared = true),
             child: Text(t.translate('mark_all_read')),
-          )
+          ),
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+          ),
         ],
       ),
       body: AnimatedBuilder(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/ai_info_placeholder/ai_info_placeholder_page.dart';
+import '../../features/about/about_page.dart';
 import '../../features/auth/forgot_password/forgot_password_page.dart';
 import '../../features/auth/login/login_page.dart';
 import '../../features/auth/register/register_page.dart';
@@ -8,6 +9,8 @@ import '../../features/catalog/catalog_page.dart';
 import '../../features/common/controllers/items_controller.dart';
 import '../../features/compare/compare_page.dart';
 import '../../features/favorites/favorites_page.dart';
+import '../../features/guides/guides_page.dart';
+import '../../features/help/help_center_page.dart';
 import '../../features/home/home_page.dart';
 import '../../features/item_details/item_details_page.dart';
 import '../../features/notifications/notifications_page.dart';
@@ -55,6 +58,12 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => NotificationsPage(itemsController: items));
       case AiInfoPlaceholderPage.route:
         return MaterialPageRoute(builder: (_) => const AiInfoPlaceholderPage());
+      case AboutPage.route:
+        return MaterialPageRoute(builder: (_) => const AboutPage());
+      case HelpCenterPage.route:
+        return MaterialPageRoute(builder: (_) => HelpCenterPage(itemsController: items));
+      case GuidesPage.route:
+        return MaterialPageRoute(builder: (_) => GuidesPage(itemsController: items));
       default:
         return MaterialPageRoute(builder: (_) => const SplashPage());
     }

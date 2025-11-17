@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iconly/iconly.dart';
 
 import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/item_card.dart';
@@ -6,6 +7,7 @@ import '../../core/widgets/skeleton_card.dart';
 import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
 import '../item_details/item_details_page.dart';
+import '../settings/settings_page.dart';
 import '../home/home_page.dart';
 
 class FavoritesPage extends StatelessWidget {
@@ -18,7 +20,15 @@ class FavoritesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(t.translate('favorites'))),
+      appBar: AppBar(
+        title: Text(t.translate('favorites')),
+        actions: [
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+          )
+        ],
+      ),
       body: AnimatedBuilder(
         animation: itemsController,
         builder: (context, _) {
