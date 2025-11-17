@@ -42,6 +42,8 @@ class FavoritesPage extends StatelessWidget {
                 onToggleCompare: () => itemsController.toggleCompare(item.id),
                 isFavorite: isFavorite,
                 isInCompare: itemsController.compare.contains(item.id),
+                note: itemsController.itemNotes[item.id],
+                showNoteBadge: true,
               );
             },
           );

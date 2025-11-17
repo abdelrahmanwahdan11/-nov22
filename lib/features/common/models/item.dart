@@ -7,12 +7,16 @@ class Item {
     required this.price,
     required this.priceValue,
     required this.rooms,
+    required this.baths,
+    required this.area,
+    required this.rating,
     required this.image,
     required this.mapPreview,
     required this.preview3d,
     this.tags = const [],
     this.description,
     this.city = 'Riyadh',
+    this.isNew = false,
   });
 
   final String id;
@@ -22,12 +26,16 @@ class Item {
   final String price;
   final double priceValue;
   final int rooms;
+  final int baths;
+  final double area;
+  final double rating;
   final String image;
   final String mapPreview;
   final String preview3d;
   final List<String> tags;
   final String? description;
   final String city;
+  final bool isNew;
 }
 
 final mockItems = [
@@ -39,6 +47,9 @@ final mockItems = [
     price: '\$1,200,000',
     priceValue: 1200000,
     rooms: 3,
+    baths: 3,
+    area: 148.0,
+    rating: 4.7,
     image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1465808892320-47a97059e571',
@@ -54,6 +65,9 @@ final mockItems = [
     price: '\$980,000',
     priceValue: 980000,
     rooms: 5,
+    baths: 5,
+    area: 310.0,
+    rating: 4.4,
     image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1470246973918-29a93221c455',
@@ -69,6 +83,9 @@ final mockItems = [
     price: '\$1,450,000',
     priceValue: 1450000,
     rooms: 4,
+    baths: 4,
+    area: 265.0,
+    rating: 4.6,
     image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511',
@@ -84,6 +101,9 @@ final mockItems = [
     price: '\$720,000',
     priceValue: 720000,
     rooms: 2,
+    baths: 2,
+    area: 118.0,
+    rating: 4.2,
     image: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e',
@@ -99,6 +119,9 @@ final mockItems = [
     price: '\$860,000',
     priceValue: 860000,
     rooms: 3,
+    baths: 3,
+    area: 156.0,
+    rating: 4.3,
     image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1465808892320-47a97059e571',
@@ -114,6 +137,9 @@ final mockItems = [
     price: '\$1,050,000',
     priceValue: 1050000,
     rooms: 4,
+    baths: 4,
+    area: 280.0,
+    rating: 4.5,
     image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1470246973918-29a93221c455',
@@ -129,6 +155,9 @@ final mockItems = [
     price: '\$1,650,000',
     priceValue: 1650000,
     rooms: 5,
+    baths: 5,
+    area: 340.0,
+    rating: 4.8,
     image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85',
@@ -144,6 +173,9 @@ final mockItems = [
     price: '\$540,000',
     priceValue: 540000,
     rooms: 1,
+    baths: 1,
+    area: 82.0,
+    rating: 4.1,
     image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1465808892320-47a97059e571',
@@ -159,6 +191,9 @@ final mockItems = [
     price: '\$880,000',
     priceValue: 880000,
     rooms: 4,
+    baths: 4,
+    area: 240.0,
+    rating: 4.0,
     image: 'https://images.unsplash.com/photo-1470246973918-29a93221c455',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e',
@@ -174,6 +209,9 @@ final mockItems = [
     price: '\$610,000',
     priceValue: 610000,
     rooms: 2,
+    baths: 2,
+    area: 126.0,
+    rating: 4.2,
     image: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1465808892320-47a97059e571',
@@ -189,6 +227,9 @@ final mockItems = [
     price: '\$1,220,000',
     priceValue: 1220000,
     rooms: 5,
+    baths: 4,
+    area: 305.0,
+    rating: 4.5,
     image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1470246973918-29a93221c455',
@@ -204,11 +245,15 @@ final mockItems = [
     price: '\$1,900,000',
     priceValue: 1900000,
     rooms: 4,
+    baths: 4,
+    area: 360.0,
+    rating: 4.9,
     image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85',
     mapPreview: 'https://images.unsplash.com/photo-1505761671935-60b3a7427bad',
     preview3d: 'https://images.unsplash.com/photo-1465808892320-47a97059e571',
     tags: ['penthouse', 'sky garden', 'city lights'],
     description: 'Upper-floor penthouse with layered sky garden terraces.',
     city: 'Kuwait City',
+    isNew: true,
   ),
 ];

@@ -27,6 +27,10 @@ class ProfilePage extends StatelessWidget {
         builder: (context, _) {
           final recentViewed = itemsController.recentlyViewedItems;
           final visits = itemsController.visits;
+          final notes = itemsController.itemNotes.entries
+              .map((entry) => MapEntry(itemsController.findItem(entry.key), entry.value))
+              .where((entry) => entry.key != null)
+              .toList();
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -51,7 +55,41 @@ class ProfilePage extends StatelessWidget {
                     icon: IconlyBold.swap,
                     onTap: () => Navigator.of(context).pushNamed(ComparePage.route),
                   ),
+                  const SizedBox(width: 12),
+                  _StatCard(
+                    label: t.translate('saved_searches'),
+                    value: itemsController.savedSearches.length.toString(),
+                    icon: IconlyBold.search,
+                  ),
                 ],
+              ),
+              const SizedBox(height: 12),
+              Text(t.translate('activity'), style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
+                ),
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: [
+                    _ActivityPill(icon: IconlyBold.heart, label: t.translate('favorites'), value: itemsController.favorites.length),
+                    _ActivityPill(icon: IconlyBold.swap, label: t.translate('compare'), value: itemsController.compare.length),
+                    _ActivityPill(icon: IconlyBold.paper, label: t.translate('saved_searches'), value: itemsController.savedSearches.length),
+                    _ActivityPill(icon: IconlyBold.calendar, label: t.translate('upcoming_visits'), value: visits.length),
+                    _ActivityPill(icon: Icons.sticky_note_2_rounded, label: t.translate('notes'), value: notes.length),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
               ListTile(
@@ -182,6 +220,32 @@ class ProfilePage extends StatelessWidget {
                     itemCount: recentViewed.length,
                   ),
                 ),
+              const SizedBox(height: 16),
+              Text(t.translate('my_notes'), style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              if (notes.isEmpty)
+                Text(t.translate('note_hint'))
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final item = notes[index].key!;
+                    final note = notes[index].value;
+                    return ListTile(
+                      leading: const Icon(Icons.sticky_note_2_outlined),
+                      title: Text(item.name),
+                      subtitle: Text(note, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.edit_note),
+                        onPressed: () => Navigator.of(context)
+                            .pushNamed(ItemDetailsPage.route, arguments: item),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemCount: notes.length,
+                ),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -239,6 +303,35 @@ class _StatCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ActivityPill extends StatelessWidget {
+  const _ActivityPill({required this.icon, required this.label, required this.value});
+
+  final IconData icon;
+  final String label;
+  final int value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 8),
+          Text('$value'),
+          const SizedBox(width: 6),
+          Text(label),
+        ],
       ),
     );
   }

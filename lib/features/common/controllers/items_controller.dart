@@ -34,6 +34,7 @@ class ItemsController extends ChangeNotifier {
   final List<String> _recentlyViewed = [];
   final List<VisitRequest> _visits = [];
   final List<SavedSearch> _savedSearches = [];
+  final Map<String, String> _itemNotes = {};
   String _searchQuery = '';
   String? _category;
   String? _city;
@@ -56,6 +57,7 @@ class ItemsController extends ChangeNotifier {
       .map((matches) => matches.first)
       .toList();
   List<VisitRequest> get visits => List.unmodifiable(_visits);
+  Map<String, String> get itemNotes => Map.unmodifiable(_itemNotes);
   VisitRequest? get nextVisit {
     final now = DateTime.now();
     for (final visit in _visits) {
@@ -151,6 +153,23 @@ class ItemsController extends ChangeNotifier {
 
   void clearRecentlyViewed() {
     _recentlyViewed.clear();
+    _persistState();
+    notifyListeners();
+  }
+
+  void saveNote(String itemId, String note) {
+    final trimmed = note.trim();
+    if (trimmed.isEmpty) {
+      _itemNotes.remove(itemId);
+    } else {
+      _itemNotes[itemId] = trimmed;
+    }
+    _persistState();
+    notifyListeners();
+  }
+
+  void removeNote(String itemId) {
+    _itemNotes.remove(itemId);
     _persistState();
     notifyListeners();
   }
@@ -322,6 +341,7 @@ class ItemsController extends ChangeNotifier {
     _recentlyViewed.clear();
     _visits.clear();
     _savedSearches.clear();
+    _itemNotes.clear();
     _category = null;
     _city = null;
     _searchQuery = '';
@@ -334,6 +354,7 @@ class ItemsController extends ChangeNotifier {
     await prefs.remove('recentlyViewed');
     await prefs.remove('visits');
     await prefs.remove('savedSearches');
+    await prefs.remove('itemNotes');
     await prefs.remove('category');
     await prefs.remove('city');
     await prefs.remove('priceStart');
@@ -411,6 +432,7 @@ class ItemsController extends ChangeNotifier {
       final savedViewed = prefs.getStringList('recentlyViewed') ?? [];
       final savedVisits = prefs.getStringList('visits') ?? [];
       final savedSearchList = prefs.getStringList('savedSearches') ?? [];
+      final savedNotes = prefs.getString('itemNotes');
 
       _favorites
         ..clear()
@@ -464,6 +486,14 @@ class ItemsController extends ChangeNotifier {
               .whereType<SavedSearch>()
               .take(10),
         );
+      if (savedNotes != null) {
+        try {
+          final decoded = jsonDecode(savedNotes) as Map<String, dynamic>;
+          _itemNotes
+            ..clear()
+            ..addAll(decoded.map((key, value) => MapEntry(key, value.toString())));
+        } catch (_) {}
+      }
       _resetPagination();
     } finally {
       if (!_readyCompleter.isCompleted) {
@@ -480,6 +510,7 @@ class ItemsController extends ChangeNotifier {
     await prefs.setStringList('recentlyViewed', _recentlyViewed);
     await prefs.setStringList('visits', _visits.map((visit) => jsonEncode(visit.toMap())).toList());
     await prefs.setStringList('savedSearches', _savedSearches.map((saved) => saved.toJson()).toList());
+    await prefs.setString('itemNotes', jsonEncode(_itemNotes));
     if (_category != null) await prefs.setString('category', _category!);
     if (_city != null) await prefs.setString('city', _city!);
     await prefs.setString('sort', _sort);

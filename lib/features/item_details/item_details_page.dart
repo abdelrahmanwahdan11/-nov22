@@ -100,6 +100,71 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                   _InfoRow(icon: IconlyLight.wallet, label: t.translate('price'), value: widget.item.price),
                   _InfoRow(icon: IconlyLight.home, label: t.translate('type'), value: widget.item.type),
                   _InfoRow(icon: IconlyLight.user_1, label: t.translate('rooms'), value: widget.item.rooms.toString()),
+                  _InfoRow(icon: Icons.bathtub_outlined, label: t.translate('baths'), value: widget.item.baths.toString()),
+                  _InfoRow(
+                    icon: Icons.square_foot,
+                    label: t.translate('area'),
+                    value: '${widget.item.area.toStringAsFixed(0)} m²',
+                  ),
+                  _InfoRow(icon: Icons.star_rounded, label: t.translate('rating'), value: widget.item.rating.toStringAsFixed(1)),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Text(t.translate('note'), style: Theme.of(context).textTheme.titleMedium),
+                      const Spacer(),
+                      TextButton.icon(
+                        onPressed: () => showModalBottomSheet(
+                          context: context,
+                          showDragHandle: true,
+                          isScrollControlled: true,
+                          builder: (_) => _NoteSheet(
+                            t: t,
+                            initialValue: widget.itemsController.itemNotes[widget.item.id] ?? '',
+                            onSave: (value) {
+                              widget.itemsController.saveNote(widget.item.id, value);
+                              if (context.mounted) {
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(t.translate('note_saved'))),
+                                );
+                              }
+                            },
+                            onRemove: widget.itemsController.itemNotes.containsKey(widget.item.id)
+                                ? () {
+                                    widget.itemsController.removeNote(widget.item.id);
+                                    if (context.mounted) {
+                                      Navigator.of(context).pop();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(t.translate('note_removed'))),
+                                      );
+                                    }
+                                  }
+                                : null,
+                          ),
+                        ),
+                        icon: const Icon(Icons.sticky_note_2_outlined),
+                        label: Text(
+                          widget.itemsController.itemNotes.containsKey(widget.item.id)
+                              ? t.translate('edit_note')
+                              : t.translate('add_note'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.4)),
+                    ),
+                    child: Text(
+                      widget.itemsController.itemNotes[widget.item.id] ?? t.translate('note_hint'),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   Text(t.translate('ai_info_placeholder')),
                   const SizedBox(height: 12),
@@ -173,6 +238,84 @@ class _InfoRow extends StatelessWidget {
           Icon(icon, size: 18),
           const SizedBox(width: 8),
           Text('$label: $value'),
+        ],
+      ),
+    );
+  }
+}
+
+class _NoteSheet extends StatefulWidget {
+  const _NoteSheet({required this.t, required this.initialValue, required this.onSave, this.onRemove});
+
+  final AppLocalizations t;
+  final String initialValue;
+  final ValueChanged<String> onSave;
+  final VoidCallback? onRemove;
+
+  @override
+  State<_NoteSheet> createState() => _NoteSheetState();
+}
+
+class _NoteSheetState extends State<_NoteSheet> {
+  late final TextEditingController _controller = TextEditingController(text: widget.initialValue);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.t;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 12,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 12,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.sticky_note_2_outlined),
+              const SizedBox(width: 8),
+              Text(t.translate('edit_note'), style: Theme.of(context).textTheme.titleMedium),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _controller,
+            decoration: InputDecoration(
+              labelText: t.translate('note'),
+              hintText: t.translate('note_hint'),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            maxLines: 4,
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => widget.onSave(_controller.text),
+                  child: Text(t.translate('done')),
+                ),
+              ),
+              if (widget.onRemove != null) ...[
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: widget.onRemove,
+                    child: Text(t.translate('remove')),
+                  ),
+                ),
+              ]
+            ],
+          )
         ],
       ),
     );

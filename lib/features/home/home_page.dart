@@ -177,6 +177,8 @@ class HomePage extends StatelessWidget {
                             onToggleCompare: () => itemsController.toggleCompare(item.id),
                             isFavorite: itemsController.favorites.contains(item.id),
                             isInCompare: itemsController.compare.contains(item.id),
+                            note: itemsController.itemNotes[item.id],
+                            showNoteBadge: true,
                           ),
                         );
                       },
@@ -216,6 +218,8 @@ class HomePage extends StatelessWidget {
                       onToggleCompare: () => itemsController.toggleCompare(item.id),
                       isFavorite: itemsController.favorites.contains(item.id),
                       isInCompare: itemsController.compare.contains(item.id),
+                      note: itemsController.itemNotes[item.id],
+                      showNoteBadge: true,
                     ),
                   ),
                 if (itemsController.hasMore)

@@ -194,6 +194,8 @@ class _SearchPageState extends State<SearchPage> {
                             onToggleCompare: () => widget.itemsController.toggleCompare(item.id),
                             isFavorite: widget.itemsController.favorites.contains(item.id),
                             isInCompare: widget.itemsController.compare.contains(item.id),
+                            note: widget.itemsController.itemNotes[item.id],
+                            showNoteBadge: true,
                           ),
                         );
                       },
@@ -229,17 +231,19 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ),
               ...widget.itemsController.items
-                  .map(
-                    (item) => ItemCard(
-                      item: item,
-                      onTap: () => Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item),
-                      onToggleFavorite: () => widget.itemsController.toggleFavorite(item.id),
-                      onToggleCompare: () => widget.itemsController.toggleCompare(item.id),
-                      isFavorite: widget.itemsController.favorites.contains(item.id),
-                      isInCompare: widget.itemsController.compare.contains(item.id),
-                    ),
-                  )
-                  .toList(),
+                .map(
+                  (item) => ItemCard(
+                    item: item,
+                    onTap: () => Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item),
+                    onToggleFavorite: () => widget.itemsController.toggleFavorite(item.id),
+                    onToggleCompare: () => widget.itemsController.toggleCompare(item.id),
+                    isFavorite: widget.itemsController.favorites.contains(item.id),
+                    isInCompare: widget.itemsController.compare.contains(item.id),
+                    note: widget.itemsController.itemNotes[item.id],
+                    showNoteBadge: true,
+                  ),
+                )
+                .toList(),
             ],
           );
         },

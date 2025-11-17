@@ -139,13 +139,15 @@ class CatalogPage extends StatelessWidget {
                           return ItemCard(
                             item: item,
                             onTap: () => Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item),
-                            onToggleFavorite: () => itemsController.toggleFavorite(item.id),
-                            onToggleCompare: () => itemsController.toggleCompare(item.id),
-                            isFavorite: itemsController.favorites.contains(item.id),
-                            isInCompare: itemsController.compare.contains(item.id),
-                          );
-                        },
-                      ),
+                          onToggleFavorite: () => itemsController.toggleFavorite(item.id),
+                          onToggleCompare: () => itemsController.toggleCompare(item.id),
+                          isFavorite: itemsController.favorites.contains(item.id),
+                          isInCompare: itemsController.compare.contains(item.id),
+                          note: itemsController.itemNotes[item.id],
+                          showNoteBadge: true,
+                        );
+                      },
+                    ),
               ),
               if (itemsController.hasMore)
                 Padding(

@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:iconly/iconly.dart';
 
 import '../../features/common/models/item.dart';
+import '../localization/app_localizations.dart';
 
 class ItemCard extends StatelessWidget {
   const ItemCard({
@@ -11,20 +12,26 @@ class ItemCard extends StatelessWidget {
     required this.onTap,
     required this.onToggleFavorite,
     required this.onToggleCompare,
+    this.note,
     this.isFavorite = false,
     this.isInCompare = false,
+    this.showNoteBadge = false,
   });
 
   final Item item;
   final VoidCallback onTap;
   final VoidCallback onToggleFavorite;
   final VoidCallback onToggleCompare;
+  final String? note;
   final bool isFavorite;
   final bool isInCompare;
+  final bool showNoteBadge;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final t = AppLocalizations.of(context);
+    final hasNote = (note ?? '').isNotEmpty;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -69,6 +76,45 @@ class ItemCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (item.isNew)
+                      Positioned(
+                        top: 12,
+                        left: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            t.translate('new'),
+                            style: theme.textTheme.labelSmall?.copyWith(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    if (hasNote && showNoteBadge)
+                      Positioned(
+                        bottom: 12,
+                        left: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: theme.cardColor.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.sticky_note_2_outlined, size: 14),
+                              const SizedBox(width: 6),
+                              Text(
+                                t.translate('note'),
+                                style: theme.textTheme.labelSmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -96,15 +142,35 @@ class ItemCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 6,
                     children: [
                       _Attribute(icon: IconlyLight.wallet, label: item.price),
-                      const SizedBox(width: 12),
                       _Attribute(icon: IconlyLight.home, label: item.type),
-                      const SizedBox(width: 12),
                       _Attribute(icon: IconlyLight.user_1, label: '${item.rooms}'),
+                      _Attribute(icon: Icons.bathtub_outlined, label: '${item.baths}'),
+                      _Attribute(icon: Icons.square_foot, label: '${item.area.toStringAsFixed(0)} m²'),
+                      _Attribute(icon: Icons.star_rounded, label: item.rating.toStringAsFixed(1)),
                     ],
                   ),
+                  if (hasNote) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.sticky_note_2_outlined, size: 16),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            note!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Row(
                     children: [
@@ -115,7 +181,7 @@ class ItemCard extends StatelessWidget {
                           color: theme.colorScheme.primary,
                         ),
                         label: Text(
-                          isInCompare ? 'Added' : 'Compare',
+                          isInCompare ? t.translate('added') : t.translate('compare'),
                           style: TextStyle(color: theme.colorScheme.primary),
                         ),
                       ),
