@@ -20,6 +20,8 @@ import '../settings/settings_page.dart';
 import '../feedback/feedback_page.dart';
 import '../changelog/changelog_page.dart';
 import '../safety/safety_tips_page.dart';
+import '../support/support_requests_page.dart';
+import '../legal/legal_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.itemsController});
@@ -117,6 +119,16 @@ class HomePage extends StatelessWidget {
                             avatar: const Icon(Icons.rate_review_outlined, size: 18),
                             label: Text(t.translate('feedback')),
                             onPressed: () => Navigator.of(context).pushNamed(FeedbackPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.support_agent_outlined, size: 18),
+                            label: Text(t.translate('support_requests')),
+                            onPressed: () => Navigator.of(context).pushNamed(SupportRequestsPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.privacy_tip_outlined, size: 18),
+                            label: Text(t.translate('legal_and_privacy')),
+                            onPressed: () => Navigator.of(context).pushNamed(LegalPage.route),
                           ),
                         ],
                       ),

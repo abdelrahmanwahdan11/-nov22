@@ -7,6 +7,7 @@ import '../../core/widgets/filter_chip.dart';
 import '../ai_info_placeholder/ai_info_placeholder_page.dart';
 import '../common/controllers/items_controller.dart';
 import '../common/models/item.dart';
+import '../settings/settings_page.dart';
 
 class ItemDetailsPage extends StatefulWidget {
   const ItemDetailsPage({super.key, required this.item, required this.itemsController});
@@ -36,7 +37,15 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     final t = AppLocalizations.of(context);
     final gallery = [widget.item.image, widget.item.preview3d, widget.item.mapPreview];
     return Scaffold(
-      appBar: AppBar(title: Text(widget.item.name)),
+      appBar: AppBar(
+        title: Text(widget.item.name),
+        actions: [
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+          )
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

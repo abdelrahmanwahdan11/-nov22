@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/localization/app_localizations.dart';
+import '../settings/settings_page.dart';
+import 'package:iconly/iconly.dart';
 
 class AiInfoPlaceholderPage extends StatelessWidget {
   const AiInfoPlaceholderPage({super.key});
@@ -10,7 +12,15 @@ class AiInfoPlaceholderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(t.translate('ai_info'))),
+      appBar: AppBar(
+        title: Text(t.translate('ai_info')),
+        actions: [
+          IconButton(
+            icon: const Icon(IconlyLight.setting),
+            onPressed: () => Navigator.of(context).pushNamed(SettingsPage.route),
+          )
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

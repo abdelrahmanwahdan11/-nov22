@@ -7,6 +7,8 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
+import '../legal/legal_page.dart';
+import '../support/support_requests_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key, required this.itemsController});
@@ -96,6 +98,18 @@ class SettingsPage extends StatelessWidget {
               onChanged: (value) => app.setUseGridLayout(value),
             ),
           ),
+          SwitchListTile(
+            title: Text(t.translate('high_contrast')),
+            subtitle: Text(t.translate('high_contrast_hint')),
+            value: app.highContrast,
+            onChanged: (value) => app.setHighContrast(value),
+          ),
+          SwitchListTile(
+            title: Text(t.translate('reduce_motion')),
+            subtitle: Text(t.translate('reduce_motion_hint')),
+            value: app.reduceMotion,
+            onChanged: (value) => app.setReduceMotion(value),
+          ),
           const SizedBox(height: 16),
           Text(t.translate('primary_color_title'), style: Theme.of(context).textTheme.titleMedium),
           Wrap(
@@ -121,6 +135,23 @@ class SettingsPage extends StatelessWidget {
                 .toList(),
           ),
           const SizedBox(height: 24),
+          Text(t.translate('support_requests'), style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: const Icon(Icons.support_agent_outlined),
+            title: Text(t.translate('support_requests')),
+            subtitle: Text(t.translate('support_request_hint')),
+            onTap: () => Navigator.of(context).pushNamed(SupportRequestsPage.route),
+          ),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: Text(t.translate('legal_and_privacy')),
+            subtitle: Text(t.translate('privacy_body')),
+            onTap: () => Navigator.of(context).pushNamed(LegalPage.route),
+          ),
+          const SizedBox(height: 8),
+          const Divider(),
+          const SizedBox(height: 8),
           Text(t.translate('data_and_storage'), style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(t.translate('clear_cached_data_desc')),
@@ -177,6 +208,8 @@ class SettingsPage extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () async {
               await itemsController.clearSavedState();
+              await app.clearSupportMessages();
+              await app.clearFeedback();
               if (context.mounted) {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(t.translate('data_cleared'))));

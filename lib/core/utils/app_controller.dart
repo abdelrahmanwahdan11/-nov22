@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme/app_theme.dart';
+import '../../features/common/models/support_message.dart';
 
 class AppController extends ChangeNotifier {
   AppController() {
@@ -27,6 +28,9 @@ class AppController extends ChangeNotifier {
   List<String> _feedbackTopics = [];
   String _feedbackNote = '';
   DateTime? _feedbackUpdatedAt;
+  bool _highContrast = false;
+  bool _reduceMotion = false;
+  List<SupportMessage> _supportMessages = [];
 
   ThemeMode get themeMode => _themeMode;
   Color get primaryColor => _primaryColor;
@@ -41,6 +45,9 @@ class AppController extends ChangeNotifier {
   List<String> get feedbackTopics => List.unmodifiable(_feedbackTopics);
   String get feedbackNote => _feedbackNote;
   DateTime? get feedbackUpdatedAt => _feedbackUpdatedAt;
+  bool get highContrast => _highContrast;
+  bool get reduceMotion => _reduceMotion;
+  List<SupportMessage> get supportMessages => List.unmodifiable(_supportMessages);
   Future<void> get ready => _readyCompleter.future;
 
   Future<void> _loadPreferences() async {
@@ -61,6 +68,8 @@ class AppController extends ChangeNotifier {
     _textScale = (prefs.getDouble('textScale') ?? 1.0).clamp(0.9, 1.2).toDouble();
     _compactCards = prefs.getBool('compactCards') ?? false;
     _useGridLayout = prefs.getBool('useGridLayout') ?? true;
+    _highContrast = prefs.getBool('highContrast') ?? false;
+    _reduceMotion = prefs.getBool('reduceMotion') ?? false;
     _feedbackRating = prefs.getDouble('feedbackRating') ?? 0;
     final topicsRaw = prefs.getString('feedbackTopics');
     if (topicsRaw != null && topicsRaw.isNotEmpty) {
@@ -70,6 +79,13 @@ class AppController extends ChangeNotifier {
     final feedbackTs = prefs.getInt('feedbackUpdatedAt');
     if (feedbackTs != null) {
       _feedbackUpdatedAt = DateTime.fromMillisecondsSinceEpoch(feedbackTs);
+    }
+    final supportRaw = prefs.getString('supportMessages');
+    if (supportRaw != null && supportRaw.isNotEmpty) {
+      final decoded = jsonDecode(supportRaw) as List<dynamic>;
+      _supportMessages = decoded
+          .map((entry) => SupportMessage.fromMap(Map<String, dynamic>.from(entry as Map<dynamic, dynamic>)))
+          .toList();
     }
     _isReady = true;
     if (!_readyCompleter.isCompleted) {
@@ -134,6 +150,20 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setHighContrast(bool value) async {
+    _highContrast = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('highContrast', value);
+    notifyListeners();
+  }
+
+  Future<void> setReduceMotion(bool value) async {
+    _reduceMotion = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('reduceMotion', value);
+    notifyListeners();
+  }
+
   Future<void> saveFeedback({required double rating, required List<String> topics, required String note}) async {
     _feedbackRating = rating;
     _feedbackTopics = topics;
@@ -158,5 +188,37 @@ class AppController extends ChangeNotifier {
     await prefs.remove('feedbackNote');
     await prefs.remove('feedbackUpdatedAt');
     notifyListeners();
+  }
+
+  Future<void> addSupportMessage(SupportMessage message) async {
+    _supportMessages = [message, ..._supportMessages];
+    await _persistSupportMessages();
+    notifyListeners();
+  }
+
+  Future<void> toggleSupportResolved(String id) async {
+    _supportMessages = _supportMessages
+        .map((msg) => msg.id == id ? msg.copyWith(resolved: !msg.resolved) : msg)
+        .toList();
+    await _persistSupportMessages();
+    notifyListeners();
+  }
+
+  Future<void> removeSupportMessage(String id) async {
+    _supportMessages = _supportMessages.where((msg) => msg.id != id).toList();
+    await _persistSupportMessages();
+    notifyListeners();
+  }
+
+  Future<void> clearSupportMessages() async {
+    _supportMessages = [];
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('supportMessages');
+    notifyListeners();
+  }
+
+  Future<void> _persistSupportMessages() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('supportMessages', jsonEncode(_supportMessages.map((e) => e.toMap()).toList()));
   }
 }

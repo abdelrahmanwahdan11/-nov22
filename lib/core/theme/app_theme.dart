@@ -13,17 +13,22 @@ class AppTheme {
   static const Color textPrimaryDark = Color(0xFFFFFFFF);
   static const Color textSecondaryDark = Color(0xFFBBBBBB);
 
-  static ThemeData light(Color primaryColor) {
+  static ThemeData light(
+    Color primaryColor, {
+    bool highContrast = false,
+    bool reduceMotion = false,
+  }) {
     final base = ThemeData.light(useMaterial3: true);
+    final contrastOverlay = highContrast ? Colors.black.withOpacity(0.06) : Colors.transparent;
     return base.copyWith(
       colorScheme: base.colorScheme.copyWith(
         primary: primaryColor,
         secondary: secondary,
         background: backgroundLight,
-        surface: cardLight,
+        surface: highContrast ? Colors.white : cardLight,
       ),
       scaffoldBackgroundColor: backgroundLight,
-      cardColor: cardLight,
+      cardColor: highContrast ? Colors.white : cardLight,
       textTheme: GoogleFonts.poppinsTextTheme(base.textTheme).apply(
         bodyColor: textPrimaryLight,
         displayColor: textPrimaryLight,
@@ -34,24 +39,40 @@ class AppTheme {
         centerTitle: true,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: cardLight,
-        selectedColor: primaryColor.withOpacity(0.15),
-        labelStyle: const TextStyle(color: textPrimaryLight),
+        backgroundColor: (highContrast ? Colors.white : cardLight).withOpacity(0.98),
+        selectedColor: primaryColor.withOpacity(0.18),
+        labelStyle: TextStyle(color: highContrast ? Colors.black : textPrimaryLight, fontWeight: highContrast ? FontWeight.w600 : null),
       ),
+      cardTheme: CardTheme(shadowColor: contrastOverlay),
+      pageTransitionsTheme: reduceMotion
+          ? const PageTransitionsTheme(builders: {
+              TargetPlatform.android: NoTransitionsBuilder(),
+              TargetPlatform.iOS: NoTransitionsBuilder(),
+              TargetPlatform.macOS: NoTransitionsBuilder(),
+              TargetPlatform.windows: NoTransitionsBuilder(),
+              TargetPlatform.linux: NoTransitionsBuilder(),
+              TargetPlatform.fuchsia: NoTransitionsBuilder(),
+            })
+          : base.pageTransitionsTheme,
     );
   }
 
-  static ThemeData dark(Color primaryColor) {
+  static ThemeData dark(
+    Color primaryColor, {
+    bool highContrast = false,
+    bool reduceMotion = false,
+  }) {
     final base = ThemeData.dark(useMaterial3: true);
+    final contrastOverlay = highContrast ? Colors.white.withOpacity(0.06) : Colors.transparent;
     return base.copyWith(
       colorScheme: base.colorScheme.copyWith(
         primary: primaryColor,
         secondary: secondary,
         background: backgroundDark,
-        surface: cardDark,
+        surface: highContrast ? const Color(0xFF0F0F0F) : cardDark,
       ),
       scaffoldBackgroundColor: backgroundDark,
-      cardColor: cardDark,
+      cardColor: highContrast ? const Color(0xFF0F0F0F) : cardDark,
       textTheme: GoogleFonts.cairoTextTheme(base.textTheme).apply(
         bodyColor: textPrimaryDark,
         displayColor: textPrimaryDark,
@@ -62,10 +83,36 @@ class AppTheme {
         centerTitle: true,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: cardDark,
-        selectedColor: primaryColor.withOpacity(0.2),
-        labelStyle: const TextStyle(color: textPrimaryDark),
+        backgroundColor: (highContrast ? const Color(0xFF0F0F0F) : cardDark).withOpacity(0.98),
+        selectedColor: primaryColor.withOpacity(0.24),
+        labelStyle: TextStyle(color: textPrimaryDark, fontWeight: highContrast ? FontWeight.w600 : null),
       ),
+      cardTheme: CardTheme(shadowColor: contrastOverlay),
+      pageTransitionsTheme: reduceMotion
+          ? const PageTransitionsTheme(builders: {
+              TargetPlatform.android: NoTransitionsBuilder(),
+              TargetPlatform.iOS: NoTransitionsBuilder(),
+              TargetPlatform.macOS: NoTransitionsBuilder(),
+              TargetPlatform.windows: NoTransitionsBuilder(),
+              TargetPlatform.linux: NoTransitionsBuilder(),
+              TargetPlatform.fuchsia: NoTransitionsBuilder(),
+            })
+          : base.pageTransitionsTheme,
     );
+  }
+}
+
+class NoTransitionsBuilder extends PageTransitionsBuilder {
+  const NoTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
   }
 }

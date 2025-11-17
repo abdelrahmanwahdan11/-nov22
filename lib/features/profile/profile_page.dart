@@ -16,6 +16,8 @@ import '../auth/login/login_page.dart';
 import '../feedback/feedback_page.dart';
 import '../changelog/changelog_page.dart';
 import '../safety/safety_tips_page.dart';
+import '../legal/legal_page.dart';
+import '../support/support_requests_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key, required this.itemsController});
@@ -135,6 +137,16 @@ class ProfilePage extends StatelessWidget {
                 leading: const Icon(Icons.shield_outlined),
                 title: Text(t.translate('safety_tips')),
                 onTap: () => Navigator.of(context).pushNamed(SafetyTipsPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.support_agent_outlined),
+                title: Text(t.translate('support_requests')),
+                onTap: () => Navigator.of(context).pushNamed(SupportRequestsPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: Text(t.translate('legal_and_privacy')),
+                onTap: () => Navigator.of(context).pushNamed(LegalPage.route),
               ),
               ListTile(
                 leading: const Icon(Icons.rate_review_outlined),

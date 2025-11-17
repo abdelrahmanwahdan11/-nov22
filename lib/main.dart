@@ -51,8 +51,16 @@ class _AppRootState extends State<AppRoot> {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
               ],
-              theme: AppTheme.light(widget.appController.primaryColor),
-              darkTheme: AppTheme.dark(widget.appController.primaryColor),
+              theme: AppTheme.light(
+                widget.appController.primaryColor,
+                highContrast: widget.appController.highContrast,
+                reduceMotion: widget.appController.reduceMotion,
+              ),
+              darkTheme: AppTheme.dark(
+                widget.appController.primaryColor,
+                highContrast: widget.appController.highContrast,
+                reduceMotion: widget.appController.reduceMotion,
+              ),
               themeMode: widget.appController.themeMode,
               initialRoute: '/',
               onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, widget.itemsController),
