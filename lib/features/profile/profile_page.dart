@@ -13,6 +13,9 @@ import '../help/help_center_page.dart';
 import '../item_details/item_details_page.dart';
 import '../settings/settings_page.dart';
 import '../auth/login/login_page.dart';
+import '../feedback/feedback_page.dart';
+import '../changelog/changelog_page.dart';
+import '../safety/safety_tips_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key, required this.itemsController});
@@ -122,6 +125,21 @@ class ProfilePage extends StatelessWidget {
                 leading: const Icon(Icons.info_outline),
                 title: Text(t.translate('about_app')),
                 onTap: () => Navigator.of(context).pushNamed(AboutPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.auto_awesome_outlined),
+                title: Text(t.translate('whats_new')),
+                onTap: () => Navigator.of(context).pushNamed(ChangelogPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.shield_outlined),
+                title: Text(t.translate('safety_tips')),
+                onTap: () => Navigator.of(context).pushNamed(SafetyTipsPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.rate_review_outlined),
+                title: Text(t.translate('feedback')),
+                onTap: () => Navigator.of(context).pushNamed(FeedbackPage.route),
               ),
               ListTile(
                 leading: const Icon(IconlyLight.paper),

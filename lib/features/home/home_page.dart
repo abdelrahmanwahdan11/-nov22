@@ -17,6 +17,9 @@ import '../item_details/item_details_page.dart';
 import '../notifications/notifications_page.dart';
 import '../search/search_page.dart';
 import '../settings/settings_page.dart';
+import '../feedback/feedback_page.dart';
+import '../changelog/changelog_page.dart';
+import '../safety/safety_tips_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.itemsController});
@@ -99,6 +102,21 @@ class HomePage extends StatelessWidget {
                             avatar: const Icon(Icons.info_outline, size: 18),
                             label: Text(t.translate('about_app')),
                             onPressed: () => Navigator.of(context).pushNamed(AboutPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.shield_outlined, size: 18),
+                            label: Text(t.translate('safety_tips')),
+                            onPressed: () => Navigator.of(context).pushNamed(SafetyTipsPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.auto_awesome_outlined, size: 18),
+                            label: Text(t.translate('whats_new')),
+                            onPressed: () => Navigator.of(context).pushNamed(ChangelogPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.rate_review_outlined, size: 18),
+                            label: Text(t.translate('feedback')),
+                            onPressed: () => Navigator.of(context).pushNamed(FeedbackPage.route),
                           ),
                         ],
                       ),

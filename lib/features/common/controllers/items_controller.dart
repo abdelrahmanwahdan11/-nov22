@@ -517,4 +517,25 @@ class ItemsController extends ChangeNotifier {
     await prefs.setDouble('priceStart', _selectedPriceRange.start);
     await prefs.setDouble('priceEnd', _selectedPriceRange.end);
   }
+
+  Map<String, dynamic> snapshot() {
+    return {
+      'favorites': _favorites.length,
+      'compare': _compare.length,
+      'savedSearches': _savedSearches.length,
+      'recentSearches': _recentSearches.length,
+      'recentlyViewed': _recentlyViewed.length,
+      'visits': _visits.length,
+      'notes': _itemNotes.length,
+      'filters': {
+        'category': _category,
+        'city': _city,
+        'priceRange': {
+          'start': _selectedPriceRange.start,
+          'end': _selectedPriceRange.end,
+        },
+        'sort': _sort,
+      }
+    };
+  }
 }

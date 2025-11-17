@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_theme.dart';
@@ -15,6 +18,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final app = AppScope.of(context);
+    final snapshotText = const JsonEncoder.withIndent('  ').convert(itemsController.snapshot());
     final colors = [
       AppTheme.defaultPrimary,
       Colors.teal,
@@ -120,6 +124,55 @@ class SettingsPage extends StatelessWidget {
           Text(t.translate('data_and_storage'), style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Text(t.translate('clear_cached_data_desc')),
+          const SizedBox(height: 8),
+          Text(t.translate('data_snapshot'), style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                )
+              ],
+            ),
+            child: SelectableText(
+              snapshotText,
+              style: const TextStyle(fontFamily: 'monospace'),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: snapshotText));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(t.translate('snapshot_copied'))));
+                  }
+                },
+                icon: const Icon(Icons.copy_all_outlined),
+                label: Text(t.translate('copy_snapshot')),
+              ),
+              const SizedBox(width: 12),
+              TextButton(
+                onPressed: () async {
+                  await itemsController.refresh();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(t.translate('refresh'))));
+                  }
+                },
+                child: Text(t.translate('refresh')),
+              )
+            ],
+          ),
           const SizedBox(height: 8),
           ElevatedButton.icon(
             onPressed: () async {

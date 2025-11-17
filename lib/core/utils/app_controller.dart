@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -22,6 +23,10 @@ class AppController extends ChangeNotifier {
   bool _compactCards = false;
   bool _useGridLayout = true;
   bool _isReady = false;
+  double _feedbackRating = 0;
+  List<String> _feedbackTopics = [];
+  String _feedbackNote = '';
+  DateTime? _feedbackUpdatedAt;
 
   ThemeMode get themeMode => _themeMode;
   Color get primaryColor => _primaryColor;
@@ -32,6 +37,10 @@ class AppController extends ChangeNotifier {
   bool get compactCards => _compactCards;
   bool get useGridLayout => _useGridLayout;
   bool get isReady => _isReady;
+  double get feedbackRating => _feedbackRating;
+  List<String> get feedbackTopics => List.unmodifiable(_feedbackTopics);
+  String get feedbackNote => _feedbackNote;
+  DateTime? get feedbackUpdatedAt => _feedbackUpdatedAt;
   Future<void> get ready => _readyCompleter.future;
 
   Future<void> _loadPreferences() async {
@@ -52,6 +61,16 @@ class AppController extends ChangeNotifier {
     _textScale = (prefs.getDouble('textScale') ?? 1.0).clamp(0.9, 1.2).toDouble();
     _compactCards = prefs.getBool('compactCards') ?? false;
     _useGridLayout = prefs.getBool('useGridLayout') ?? true;
+    _feedbackRating = prefs.getDouble('feedbackRating') ?? 0;
+    final topicsRaw = prefs.getString('feedbackTopics');
+    if (topicsRaw != null && topicsRaw.isNotEmpty) {
+      _feedbackTopics = List<String>.from(jsonDecode(topicsRaw) as List<dynamic>);
+    }
+    _feedbackNote = prefs.getString('feedbackNote') ?? '';
+    final feedbackTs = prefs.getInt('feedbackUpdatedAt');
+    if (feedbackTs != null) {
+      _feedbackUpdatedAt = DateTime.fromMillisecondsSinceEpoch(feedbackTs);
+    }
     _isReady = true;
     if (!_readyCompleter.isCompleted) {
       _readyCompleter.complete();
@@ -112,6 +131,32 @@ class AppController extends ChangeNotifier {
     _useGridLayout = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('useGridLayout', value);
+    notifyListeners();
+  }
+
+  Future<void> saveFeedback({required double rating, required List<String> topics, required String note}) async {
+    _feedbackRating = rating;
+    _feedbackTopics = topics;
+    _feedbackNote = note;
+    _feedbackUpdatedAt = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('feedbackRating', rating);
+    await prefs.setString('feedbackTopics', jsonEncode(topics));
+    await prefs.setString('feedbackNote', note);
+    await prefs.setInt('feedbackUpdatedAt', _feedbackUpdatedAt!.millisecondsSinceEpoch);
+    notifyListeners();
+  }
+
+  Future<void> clearFeedback() async {
+    _feedbackRating = 0;
+    _feedbackTopics = [];
+    _feedbackNote = '';
+    _feedbackUpdatedAt = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('feedbackRating');
+    await prefs.remove('feedbackTopics');
+    await prefs.remove('feedbackNote');
+    await prefs.remove('feedbackUpdatedAt');
     notifyListeners();
   }
 }

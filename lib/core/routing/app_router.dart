@@ -20,6 +20,9 @@ import '../../features/search/search_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/shell/shell_page.dart';
 import '../../features/splash/splash_page.dart';
+import '../../features/feedback/feedback_page.dart';
+import '../../features/changelog/changelog_page.dart';
+import '../../features/safety/safety_tips_page.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings, ItemsController items) {
@@ -64,6 +67,12 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => HelpCenterPage(itemsController: items));
       case GuidesPage.route:
         return MaterialPageRoute(builder: (_) => GuidesPage(itemsController: items));
+      case FeedbackPage.route:
+        return MaterialPageRoute(builder: (_) => FeedbackPage(itemsController: items));
+      case ChangelogPage.route:
+        return MaterialPageRoute(builder: (_) => const ChangelogPage());
+      case SafetyTipsPage.route:
+        return MaterialPageRoute(builder: (_) => const SafetyTipsPage());
       default:
         return MaterialPageRoute(builder: (_) => const SplashPage());
     }
