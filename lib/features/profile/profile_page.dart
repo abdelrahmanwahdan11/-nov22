@@ -26,6 +26,7 @@ class ProfilePage extends StatelessWidget {
         animation: itemsController,
         builder: (context, _) {
           final recentViewed = itemsController.recentlyViewedItems;
+          final visits = itemsController.visits;
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -68,6 +69,68 @@ class ProfilePage extends StatelessWidget {
                 title: Text(t.translate('favorites')),
                 onTap: () => Navigator.of(context).pushNamed(FavoritesPage.route),
               ),
+              const SizedBox(height: 8),
+              Text(t.translate('upcoming_visits'), style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              if (visits.isEmpty)
+                Text(t.translate('no_upcoming_visits'))
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final visit = visits[index];
+                    final item = itemsController.findItem(visit.itemId);
+                    if (item == null) return const SizedBox.shrink();
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(item.name, style: Theme.of(context).textTheme.titleMedium),
+                                    const SizedBox(height: 4),
+                                    Text(visit.formatted(context),
+                                        style: Theme.of(context).textTheme.bodySmall),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => itemsController.cancelVisit(visit.id),
+                                icon: const Icon(Icons.close),
+                                tooltip: t.translate('cancel_visit'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(item.location, style: Theme.of(context).textTheme.bodySmall),
+                          if (visit.note != null && visit.note!.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(visit.note!, style: Theme.of(context).textTheme.bodyMedium),
+                          ]
+                        ],
+                      ),
+                    );
+                  },
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  itemCount: visits.length,
+                ),
               const SizedBox(height: 8),
               Text(t.translate('recently_viewed'), style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),

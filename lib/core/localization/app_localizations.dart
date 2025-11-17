@@ -101,6 +101,14 @@ class AppLocalizations {
       'ai_info_step_collect': 'Collect highlights from listing photos and attributes.',
       'ai_info_step_summarize': 'Summarize selling points and nearby amenities.',
       'ai_info_step_translate': 'Offer instant bilingual Arabic/English narratives.',
+      'schedule_visit': 'Schedule a visit',
+      'select_date': 'Select date',
+      'select_time': 'Select time',
+      'note_optional': 'Add note (optional)',
+      'visit_saved': 'Visit saved',
+      'upcoming_visits': 'Upcoming visits',
+      'no_upcoming_visits': 'No visits scheduled yet',
+      'cancel_visit': 'Cancel visit',
     },
     'ar': {
       'app_title': 'اكتشف المساحات',
@@ -197,6 +205,14 @@ class AppLocalizations {
       'ai_info_step_collect': 'جمع أبرز المعلومات من الصور والخصائص.',
       'ai_info_step_summarize': 'تلخيص نقاط التميز والمرافق القريبة.',
       'ai_info_step_translate': 'تقديم وصف فوري بالعربية والإنجليزية.',
+      'schedule_visit': 'جدولة زيارة',
+      'select_date': 'اختيار التاريخ',
+      'select_time': 'اختيار الوقت',
+      'note_optional': 'ملاحظة (اختياري)',
+      'visit_saved': 'تم حفظ الزيارة',
+      'upcoming_visits': 'الزيارات القادمة',
+      'no_upcoming_visits': 'لا توجد زيارات مجدولة بعد',
+      'cancel_visit': 'إلغاء الزيارة',
     }
   };
 

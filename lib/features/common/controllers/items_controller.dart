@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/item.dart';
+import '../models/visit_request.dart';
 
 class ItemsController extends ChangeNotifier {
   ItemsController() {
@@ -29,6 +31,7 @@ class ItemsController extends ChangeNotifier {
   final List<String> _compare = [];
   final List<String> _recentSearches = [];
   final List<String> _recentlyViewed = [];
+  final List<VisitRequest> _visits = [];
   String _searchQuery = '';
   String? _category;
   String? _city;
@@ -50,6 +53,7 @@ class ItemsController extends ChangeNotifier {
       .where((matches) => matches.isNotEmpty)
       .map((matches) => matches.first)
       .toList();
+  List<VisitRequest> get visits => List.unmodifiable(_visits);
   String? get category => _category;
   String? get city => _city;
   String get sort => _sort;
@@ -175,6 +179,33 @@ class ItemsController extends ChangeNotifier {
     _resetPagination();
   }
 
+  VisitRequest scheduleVisit(String itemId, DateTime dateTime, {String? note}) {
+    final request = VisitRequest(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      itemId: itemId,
+      dateTime: dateTime,
+      note: note?.trim().isEmpty ?? true ? null : note?.trim(),
+    );
+    _visits.add(request);
+    _visits.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+    _persistState();
+    notifyListeners();
+    return request;
+  }
+
+  void cancelVisit(String id) {
+    _visits.removeWhere((visit) => visit.id == id);
+    _persistState();
+    notifyListeners();
+  }
+
+  Item? findItem(String id) {
+    for (final item in _items) {
+      if (item.id == id) return item;
+    }
+    return null;
+  }
+
   void clearFilters() {
     _category = null;
     _city = null;
@@ -235,6 +266,7 @@ class ItemsController extends ChangeNotifier {
       final savedSort = prefs.getString('sort');
       final savedSearches = prefs.getStringList('recentSearches') ?? [];
       final savedViewed = prefs.getStringList('recentlyViewed') ?? [];
+      final savedVisits = prefs.getStringList('visits') ?? [];
 
       _favorites
         ..clear()
@@ -260,6 +292,20 @@ class ItemsController extends ChangeNotifier {
       if (savedSort != null && savedSort.isNotEmpty) {
         _sort = savedSort;
       }
+      _visits
+        ..clear()
+        ..addAll(
+          savedVisits
+              .map((json) {
+                try {
+                  return VisitRequest.fromMap(jsonDecode(json) as Map<String, dynamic>);
+                } catch (_) {
+                  return null;
+                }
+              })
+              .whereType<VisitRequest>()
+              .take(10),
+        );
       _resetPagination();
     } finally {
       if (!_readyCompleter.isCompleted) {
@@ -274,6 +320,7 @@ class ItemsController extends ChangeNotifier {
     await prefs.setStringList('compare', _compare);
     await prefs.setStringList('recentSearches', _recentSearches);
     await prefs.setStringList('recentlyViewed', _recentlyViewed);
+    await prefs.setStringList('visits', _visits.map((visit) => jsonEncode(visit.toMap())).toList());
     if (_category != null) await prefs.setString('category', _category!);
     if (_city != null) await prefs.setString('city', _city!);
     await prefs.setString('sort', _sort);
