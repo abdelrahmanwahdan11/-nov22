@@ -7,6 +7,7 @@ import '../ai_info_placeholder/ai_info_placeholder_page.dart';
 import '../common/controllers/items_controller.dart';
 import '../compare/compare_page.dart';
 import '../favorites/favorites_page.dart';
+import '../item_details/item_details_page.dart';
 import '../settings/settings_page.dart';
 import '../auth/login/login_page.dart';
 
@@ -24,65 +25,114 @@ class ProfilePage extends StatelessWidget {
       body: AnimatedBuilder(
         animation: itemsController,
         builder: (context, _) {
-          return Padding(
+          final recentViewed = itemsController.recentlyViewedItems;
+          return ListView(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  leading: const CircleAvatar(child: Icon(IconlyBold.profile)),
-                  title: const Text('Guest User'),
-                  subtitle: const Text('guest@example.com'),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    _StatCard(
-                      label: t.translate('favorites'),
-                      value: itemsController.favorites.length.toString(),
-                      icon: IconlyBold.heart,
-                      onTap: () => Navigator.of(context).pushNamed(FavoritesPage.route),
-                    ),
-                    const SizedBox(width: 12),
-                    _StatCard(
-                      label: t.translate('compare'),
-                      value: itemsController.compare.length.toString(),
-                      icon: IconlyBold.swap,
-                      onTap: () => Navigator.of(context).pushNamed(ComparePage.route),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ListTile(
-                  leading: const Icon(IconlyLight.setting),
-                  title: Text(t.translate('settings')),
-                  onTap: () => Navigator.of(context).pushNamed(SettingsPage.route),
-                ),
-                ListTile(
-                  leading: const Icon(IconlyLight.paper),
-                  title: Text(t.translate('ai_info')),
-                  onTap: () => Navigator.of(context).pushNamed(AiInfoPlaceholderPage.route),
-                ),
-                ListTile(
-                  leading: const Icon(IconlyLight.heart),
-                  title: Text(t.translate('favorites')),
-                  onTap: () => Navigator.of(context).pushNamed(FavoritesPage.route),
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      await AppScope.of(context).setLoggedIn(false);
-                      if (context.mounted) {
-                        Navigator.of(context).pushReplacementNamed(LoginPage.route);
-                      }
-                    },
-                    child: Text(t.translate('logout')),
+            children: [
+              ListTile(
+                leading: const CircleAvatar(child: Icon(IconlyBold.profile)),
+                title: const Text('Guest User'),
+                subtitle: const Text('guest@example.com'),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  _StatCard(
+                    label: t.translate('favorites'),
+                    value: itemsController.favorites.length.toString(),
+                    icon: IconlyBold.heart,
+                    onTap: () => Navigator.of(context).pushNamed(FavoritesPage.route),
                   ),
-                )
-              ],
-            ),
+                  const SizedBox(width: 12),
+                  _StatCard(
+                    label: t.translate('compare'),
+                    value: itemsController.compare.length.toString(),
+                    icon: IconlyBold.swap,
+                    onTap: () => Navigator.of(context).pushNamed(ComparePage.route),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: const Icon(IconlyLight.setting),
+                title: Text(t.translate('settings')),
+                onTap: () => Navigator.of(context).pushNamed(SettingsPage.route),
+              ),
+              ListTile(
+                leading: const Icon(IconlyLight.paper),
+                title: Text(t.translate('ai_info')),
+                onTap: () => Navigator.of(context).pushNamed(AiInfoPlaceholderPage.route),
+              ),
+              ListTile(
+                leading: const Icon(IconlyLight.heart),
+                title: Text(t.translate('favorites')),
+                onTap: () => Navigator.of(context).pushNamed(FavoritesPage.route),
+              ),
+              const SizedBox(height: 8),
+              Text(t.translate('recently_viewed'), style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              if (recentViewed.isEmpty)
+                Text(t.translate('recently_viewed_empty'))
+              else
+                SizedBox(
+                  height: 180,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      final item = recentViewed[index];
+                      return Container(
+                        width: 200,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            )
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(item.image, height: 90, width: double.infinity, fit: BoxFit.cover),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(item.location, maxLines: 1, overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall),
+                            const SizedBox(height: 6),
+                            TextButton(
+                              onPressed: () => Navigator.of(context)
+                                  .pushNamed(ItemDetailsPage.route, arguments: item),
+                              child: Text(t.translate('view_all')),
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                    separatorBuilder: (_, __) => const SizedBox(width: 10),
+                    itemCount: recentViewed.length,
+                  ),
+                ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    await AppScope.of(context).setLoggedIn(false);
+                    if (context.mounted) {
+                      Navigator.of(context).pushReplacementNamed(LoginPage.route);
+                    }
+                  },
+                  child: Text(t.translate('logout')),
+                ),
+              )
+            ],
           );
         },
       ),

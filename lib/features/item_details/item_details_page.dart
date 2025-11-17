@@ -24,6 +24,14 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
   int _galleryIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.itemsController.markViewed(widget.item.id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final gallery = [widget.item.image, widget.item.preview3d, widget.item.mapPreview];

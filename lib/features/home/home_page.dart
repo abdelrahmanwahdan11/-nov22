@@ -43,6 +43,7 @@ class HomePage extends StatelessWidget {
       body: AnimatedBuilder(
         animation: itemsController,
         builder: (context, _) {
+          final recentlyViewed = itemsController.recentlyViewedItems;
           return RefreshIndicator(
             onRefresh: itemsController.refresh,
             child: ListView(
@@ -51,6 +52,47 @@ class HomePage extends StatelessWidget {
                 const SizedBox(height: 12),
                 _HeroCard(itemsController: itemsController),
                 _MapPreview(itemsController: itemsController),
+                if (recentlyViewed.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                    child: Row(
+                      children: [
+                        Text(t.translate('recently_viewed'),
+                            style: Theme.of(context).textTheme.titleMedium),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: itemsController.clearRecentlyViewed,
+                          child: Text(t.translate('clear_history')),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 260,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      itemBuilder: (context, index) {
+                        final item = recentlyViewed[index];
+                        return SizedBox(
+                          width: 280,
+                          child: ItemCard(
+                            item: item,
+                            onTap: () {
+                              Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item);
+                            },
+                            onToggleFavorite: () => itemsController.toggleFavorite(item.id),
+                            onToggleCompare: () => itemsController.toggleCompare(item.id),
+                            isFavorite: itemsController.favorites.contains(item.id),
+                            isInCompare: itemsController.compare.contains(item.id),
+                          ),
+                        );
+                      },
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemCount: recentlyViewed.length,
+                    ),
+                  ),
+                ],
                 SizedBox(
                   height: 64,
                   child: ListView.separated(

@@ -17,11 +17,34 @@ class CatalogPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final categories = ['all', 'Apartment', 'Villa', 'Beach House'];
-    final cities = ['All', 'Dubai', 'Al Ula', 'Muscat', 'Riyadh', 'Jeddah', 'Abha', 'Doha', 'Manama'];
+    final cities = [
+      'All',
+      'Dubai',
+      'Al Ula',
+      'Muscat',
+      'Riyadh',
+      'Jeddah',
+      'Abha',
+      'Doha',
+      'Manama',
+      'Sharjah',
+      'Alexandria',
+      'Al Ain',
+      'Kuwait City'
+    ];
     return Scaffold(
       appBar: AppBar(
         title: Text(t.translate('catalog')),
         actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.sort),
+            onSelected: (value) => itemsController.setSort(value),
+            itemBuilder: (context) => [
+              PopupMenuItem(value: 'recent', child: Text(t.translate('sort_recent'))),
+              PopupMenuItem(value: 'priceLowHigh', child: Text(t.translate('sort_price_low_high'))),
+              PopupMenuItem(value: 'priceHighLow', child: Text(t.translate('sort_price_high_low'))),
+            ],
+          ),
           IconButton(
             onPressed: () => _showFilters(context, t),
             icon: const Icon(Icons.filter_alt_outlined),
@@ -31,6 +54,16 @@ class CatalogPage extends StatelessWidget {
       body: AnimatedBuilder(
         animation: itemsController,
         builder: (context, _) {
+          String sortLabel(String value) {
+            switch (value) {
+              case 'priceLowHigh':
+                return t.translate('sort_price_low_high');
+              case 'priceHighLow':
+                return t.translate('sort_price_high_low');
+              default:
+                return t.translate('sort_recent');
+            }
+          }
           return Column(
             children: [
               SizedBox(
@@ -65,6 +98,28 @@ class CatalogPage extends StatelessWidget {
                   },
                   separatorBuilder: (_, __) => const SizedBox(width: 8),
                   itemCount: cities.length,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    Chip(
+                      label: Text('${t.translate('sort')}: ${sortLabel(itemsController.sort)}'),
+                      avatar: const Icon(Icons.sort, size: 18),
+                    ),
+                    const Spacer(),
+                    if (itemsController.category != null ||
+                        itemsController.city != null ||
+                        itemsController.sort != 'recent')
+                      TextButton(
+                        onPressed: () {
+                          itemsController.clearFilters();
+                          itemsController.setSort('recent');
+                        },
+                        child: Text(t.translate('clear')),
+                      ),
+                  ],
                 ),
               ),
               Expanded(
@@ -145,7 +200,7 @@ class CatalogPage extends StatelessWidget {
                   DropdownButton<String?>(
                     value: items.city,
                     isExpanded: true,
-                    items: ['All', 'Dubai', 'Al Ula', 'Muscat', 'Riyadh', 'Jeddah', 'Abha', 'Doha', 'Manama']
+                    items: cities
                         .map(
                           (city) => DropdownMenuItem(
                             value: city == 'All' ? null : city,

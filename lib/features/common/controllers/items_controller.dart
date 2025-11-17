@@ -27,9 +27,12 @@ class ItemsController extends ChangeNotifier {
   List<Item> _filtered = [];
   final List<String> _favorites = [];
   final List<String> _compare = [];
+  final List<String> _recentSearches = [];
+  final List<String> _recentlyViewed = [];
   String _searchQuery = '';
   String? _category;
   String? _city;
+  String _sort = 'recent';
   late RangeValues _selectedPriceRange;
   late RangeValues _priceBounds;
   final Completer<void> _readyCompleter = Completer<void>();
@@ -41,8 +44,15 @@ class ItemsController extends ChangeNotifier {
   List<String> get favorites => _favorites;
   List<Item> get favoriteItems => _items.where((item) => _favorites.contains(item.id)).toList();
   List<String> get compare => _compare;
+  List<String> get recentSearches => _recentSearches;
+  List<Item> get recentlyViewedItems => _recentlyViewed
+      .map((id) => _items.where((item) => item.id == id).toList())
+      .where((matches) => matches.isNotEmpty)
+      .map((matches) => matches.first)
+      .toList();
   String? get category => _category;
   String? get city => _city;
+  String get sort => _sort;
   RangeValues get selectedPriceRange => _selectedPriceRange;
   RangeValues get priceBounds => _priceBounds;
   Future<void> get ready => _readyCompleter.future;
@@ -108,7 +118,37 @@ class ItemsController extends ChangeNotifier {
 
   void search(String query) {
     _searchQuery = query;
+    if (query.isNotEmpty) {
+      _recentSearches.remove(query);
+      _recentSearches.insert(0, query);
+      if (_recentSearches.length > 6) {
+        _recentSearches.removeLast();
+      }
+      _persistState();
+    }
     _resetPagination();
+  }
+
+  void clearRecentSearches() {
+    _recentSearches.clear();
+    _persistState();
+    notifyListeners();
+  }
+
+  void clearRecentlyViewed() {
+    _recentlyViewed.clear();
+    _persistState();
+    notifyListeners();
+  }
+
+  void markViewed(String id) {
+    _recentlyViewed.remove(id);
+    _recentlyViewed.insert(0, id);
+    if (_recentlyViewed.length > 6) {
+      _recentlyViewed.removeLast();
+    }
+    _persistState();
+    notifyListeners();
   }
 
   void setCategory(String? value) {
@@ -125,6 +165,12 @@ class ItemsController extends ChangeNotifier {
 
   void setPriceRange(RangeValues values) {
     _selectedPriceRange = values;
+    _persistState();
+    _resetPagination();
+  }
+
+  void setSort(String value) {
+    _sort = value;
     _persistState();
     _resetPagination();
   }
@@ -160,6 +206,13 @@ class ItemsController extends ChangeNotifier {
             item.tags.any((tag) => tag.toLowerCase().contains(_searchQuery.toLowerCase())),
       );
     }
+    if (_sort == 'priceLowHigh') {
+      results = results.toList()
+        ..sort((a, b) => a.priceValue.compareTo(b.priceValue));
+    } else if (_sort == 'priceHighLow') {
+      results = results.toList()
+        ..sort((a, b) => b.priceValue.compareTo(a.priceValue));
+    }
     return results.toList();
   }
 
@@ -179,6 +232,9 @@ class ItemsController extends ChangeNotifier {
       final savedCity = prefs.getString('city');
       final start = prefs.getDouble('priceStart');
       final end = prefs.getDouble('priceEnd');
+      final savedSort = prefs.getString('sort');
+      final savedSearches = prefs.getStringList('recentSearches') ?? [];
+      final savedViewed = prefs.getStringList('recentlyViewed') ?? [];
 
       _favorites
         ..clear()
@@ -186,6 +242,12 @@ class ItemsController extends ChangeNotifier {
       _compare
         ..clear()
         ..addAll(comps);
+      _recentSearches
+        ..clear()
+        ..addAll(savedSearches.take(6));
+      _recentlyViewed
+        ..clear()
+        ..addAll(savedViewed.take(6));
       if (savedCategory != null && savedCategory.isNotEmpty) {
         _category = savedCategory;
       }
@@ -194,6 +256,9 @@ class ItemsController extends ChangeNotifier {
       }
       if (start != null && end != null) {
         _selectedPriceRange = RangeValues(start, end);
+      }
+      if (savedSort != null && savedSort.isNotEmpty) {
+        _sort = savedSort;
       }
       _resetPagination();
     } finally {
@@ -207,8 +272,11 @@ class ItemsController extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('favorites', _favorites);
     await prefs.setStringList('compare', _compare);
+    await prefs.setStringList('recentSearches', _recentSearches);
+    await prefs.setStringList('recentlyViewed', _recentlyViewed);
     if (_category != null) await prefs.setString('category', _category!);
     if (_city != null) await prefs.setString('city', _city!);
+    await prefs.setString('sort', _sort);
     await prefs.setDouble('priceStart', _selectedPriceRange.start);
     await prefs.setDouble('priceEnd', _selectedPriceRange.end);
   }
