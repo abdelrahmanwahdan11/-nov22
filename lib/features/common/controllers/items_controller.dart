@@ -294,6 +294,54 @@ class ItemsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<Item> matchesForSavedSearch(SavedSearch saved) {
+    Iterable<Item> results = _items;
+    final query = saved.query.trim();
+    if (query.isNotEmpty) {
+      results = results.where(
+        (item) => item.name.toLowerCase().contains(query.toLowerCase()) ||
+            item.location.toLowerCase().contains(query.toLowerCase()) ||
+            item.tags.any((tag) => tag.toLowerCase().contains(query.toLowerCase())),
+      );
+    }
+    if ((saved.category ?? '').isNotEmpty) {
+      results = results.where((item) => item.type.toLowerCase() == saved.category!.toLowerCase());
+    }
+    if ((saved.city ?? '').isNotEmpty) {
+      results = results.where((item) => item.city.toLowerCase() == saved.city!.toLowerCase());
+    }
+    final range = saved.range ?? _priceBounds;
+    results = results.where((item) => item.priceValue >= range.start && item.priceValue <= range.end);
+    return results.take(10).toList();
+  }
+
+  Future<void> clearSavedState() async {
+    _favorites.clear();
+    _compare.clear();
+    _recentSearches.clear();
+    _recentlyViewed.clear();
+    _visits.clear();
+    _savedSearches.clear();
+    _category = null;
+    _city = null;
+    _searchQuery = '';
+    _sort = 'recent';
+    _selectedPriceRange = _priceBounds;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('favorites');
+    await prefs.remove('compare');
+    await prefs.remove('recentSearches');
+    await prefs.remove('recentlyViewed');
+    await prefs.remove('visits');
+    await prefs.remove('savedSearches');
+    await prefs.remove('category');
+    await prefs.remove('city');
+    await prefs.remove('priceStart');
+    await prefs.remove('priceEnd');
+    await prefs.remove('sort');
+    _resetPagination();
+  }
+
   Item? findItem(String id) {
     for (final item in _items) {
       if (item.id == id) return item;

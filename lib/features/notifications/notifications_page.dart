@@ -98,8 +98,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                ...savedSearches.map(
-                  (saved) => Card(
+                ...savedSearches.map((saved) {
+                  final matches = widget.itemsController.matchesForSavedSearch(saved);
+                  return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -115,6 +116,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                                 if ((saved.category ?? '').isNotEmpty) saved.category!,
                                 if (saved.minPrice != null && saved.maxPrice != null)
                                   '${saved.minPrice?.toStringAsFixed(0)} - ${saved.maxPrice?.toStringAsFixed(0)}',
+                                t.translate('saved_search_matches') + ': ${matches.length}',
                               ].where((value) => value.isNotEmpty).join(' • '),
                             ),
                             trailing: Switch(
@@ -126,14 +128,22 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           Row(
                             children: [
                               TextButton.icon(
+                                onPressed: matches.isEmpty
+                                    ? null
+                                    : () => _showMatches(context, matches),
+                                icon: const Icon(IconlyLight.paper),
+                                label: Text(t.translate('view_matches')),
+                              ),
+                              const SizedBox(width: 8),
+                              TextButton.icon(
                                 onPressed: () {
                                   widget.itemsController.applySavedSearch(saved);
                                   Navigator.of(context).maybePop();
                                 },
                                 icon: const Icon(IconlyLight.arrow_right_2),
-                                label: Text(t.translate('apply_filters')),
+                                label: Text(t.translate('apply_search')),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 8),
                               TextButton(
                                 onPressed: () => widget.itemsController.removeSavedSearch(saved.id),
                                 child: Text(t.translate('remove_saved_search')),
@@ -143,13 +153,47 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         ],
                       ),
                     ),
-                  ),
-                ),
+                  );
+                }),
               ]
             ],
           );
         },
       ),
+    );
+  }
+
+  void _showMatches(BuildContext context, List matches) {
+    final t = AppLocalizations.of(context);
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.translate('saved_search_matches'), style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 12),
+              if (matches.isEmpty)
+                Text(t.translate('no_matches_yet'))
+              else
+                ...matches.map(
+                  (item) => ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(item.name),
+                    subtitle: Text(item.location),
+                    leading: CircleAvatar(backgroundImage: NetworkImage(item.image)),
+                    onTap: () => Navigator.of(context)
+                        .pushNamed(ItemDetailsPage.route, arguments: item),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

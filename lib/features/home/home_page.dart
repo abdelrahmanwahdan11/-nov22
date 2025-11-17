@@ -59,6 +59,91 @@ class HomePage extends StatelessWidget {
                   ),
                 _HeroCard(itemsController: itemsController),
                 _MapPreview(itemsController: itemsController),
+                Builder(builder: (context) {
+                  final savedMatches = itemsController.savedSearches
+                      .where((saved) => saved.alertsEnabled)
+                      .map((saved) => MapEntry(saved, itemsController.matchesForSavedSearch(saved)))
+                      .where((entry) => entry.value.isNotEmpty)
+                      .toList();
+                  if (savedMatches.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(t.translate('matches_for_you'),
+                                style: Theme.of(context).textTheme.titleMedium),
+                            const Spacer(),
+                            Text(t.translate('saved_searches'),
+                                style: Theme.of(context).textTheme.bodySmall),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 220,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: savedMatches.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              final entry = savedMatches[index];
+                              final match = entry.value.first;
+                              return SizedBox(
+                                width: 260,
+                                child: GestureDetector(
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(ItemDetailsPage.route, arguments: match),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.05),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 6),
+                                        )
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Image.network(match.image,
+                                              height: 110, width: double.infinity, fit: BoxFit.cover),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(entry.key.query,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context).textTheme.titleMedium),
+                                        const SizedBox(height: 4),
+                                        Text('${t.translate('saved_search_matches')}: ${entry.value.length}',
+                                            style: Theme.of(context).textTheme.bodySmall),
+                                        const Spacer(),
+                                        Text(match.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                                        Text(match.location,
+                                            style: Theme.of(context).textTheme.bodySmall,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
                 if (recentlyViewed.isNotEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
