@@ -52,7 +52,7 @@ class AppRouter {
       case SettingsPage.route:
         return MaterialPageRoute(builder: (_) => const SettingsPage());
       case NotificationsPage.route:
-        return MaterialPageRoute(builder: (_) => const NotificationsPage());
+        return MaterialPageRoute(builder: (_) => NotificationsPage(itemsController: items));
       case AiInfoPlaceholderPage.route:
         return MaterialPageRoute(builder: (_) => const AiInfoPlaceholderPage());
       default:

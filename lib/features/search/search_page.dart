@@ -39,6 +39,19 @@ class _SearchPageState extends State<SearchPage> {
     setState(() => _loading = false);
   }
 
+  void _toggleSave() {
+    final query = _controller.text.trim();
+    if (query.isEmpty) return;
+    final t = AppLocalizations.of(context);
+    final wasSaved = widget.itemsController.isSearchSaved(query);
+    widget.itemsController.toggleSaveSearch(query);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(wasSaved ? t.translate('remove_saved_search') : t.translate('search_saved')),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -67,13 +80,35 @@ class _SearchPageState extends State<SearchPage> {
         builder: (context, _) {
           final recents = widget.itemsController.recentSearches;
           final viewed = widget.itemsController.recentlyViewedItems;
+          final saved = widget.itemsController.savedSearches;
+          final isSaved = widget.itemsController.isSearchSaved(_controller.text);
           if (_loading) {
             return ListView(children: List.generate(4, (index) => const SkeletonCard()));
           }
+          final saveBar = Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.translate('save_search_hint'),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: _controller.text.isEmpty ? null : _toggleSave,
+                  icon: Icon(isSaved ? Icons.bookmark_remove : Icons.bookmark_add_outlined),
+                  label: Text(isSaved ? t.translate('remove_saved_search') : t.translate('save_search')),
+                ),
+              ],
+            ),
+          );
           if (_controller.text.isEmpty && recents.isNotEmpty) {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                saveBar,
                 Row(
                   children: [
                     Text(t.translate('recent_searches'), style: Theme.of(context).textTheme.titleMedium),
@@ -99,6 +134,40 @@ class _SearchPageState extends State<SearchPage> {
                       .toList(),
                 ),
                 const SizedBox(height: 16),
+                if (saved.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      Text(t.translate('saved_searches'), style: Theme.of(context).textTheme.titleMedium),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          for (final entry in List.of(saved)) {
+                            widget.itemsController.removeSavedSearch(entry.id);
+                          }
+                        },
+                        child: Text(t.translate('clear_history')),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: saved
+                        .map(
+                          (entry) => InputChip(
+                            label: Text(entry.query),
+                            onPressed: () {
+                              _controller.text = entry.query;
+                              widget.itemsController.applySavedSearch(entry);
+                            },
+                            onDeleted: () => widget.itemsController.removeSavedSearch(entry.id),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 Text(t.translate('recently_viewed'), style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 if (viewed.isEmpty)
@@ -137,18 +206,41 @@ class _SearchPageState extends State<SearchPage> {
             return Center(child: Text(t.translate('no_results_found')));
           }
           return ListView(
-            children: widget.itemsController.items
-                .map(
-                  (item) => ItemCard(
-                    item: item,
-                    onTap: () => Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item),
-                    onToggleFavorite: () => widget.itemsController.toggleFavorite(item.id),
-                    onToggleCompare: () => widget.itemsController.toggleCompare(item.id),
-                    isFavorite: widget.itemsController.favorites.contains(item.id),
-                    isInCompare: widget.itemsController.compare.contains(item.id),
+            children: [
+              saveBar,
+              if (saved.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: saved
+                        .map(
+                          (entry) => ActionChip(
+                            label: Text(entry.query),
+                            avatar: const Icon(Icons.history, size: 18),
+                            onPressed: () {
+                              _controller.text = entry.query;
+                              widget.itemsController.applySavedSearch(entry);
+                            },
+                          ),
+                        )
+                        .toList(),
                   ),
-                )
-                .toList(),
+                ),
+              ...widget.itemsController.items
+                  .map(
+                    (item) => ItemCard(
+                      item: item,
+                      onTap: () => Navigator.of(context).pushNamed(ItemDetailsPage.route, arguments: item),
+                      onToggleFavorite: () => widget.itemsController.toggleFavorite(item.id),
+                      onToggleCompare: () => widget.itemsController.toggleCompare(item.id),
+                      isFavorite: widget.itemsController.favorites.contains(item.id),
+                      isInCompare: widget.itemsController.compare.contains(item.id),
+                    ),
+                  )
+                  .toList(),
+            ],
           );
         },
       ),

@@ -36,6 +36,11 @@ class AppLocalizations {
       'dark_mode': 'Dark mode',
       'light_mode': 'Light mode',
       'search': 'Search',
+      'save_search': 'Save search',
+      'save_search_hint': 'Save this search to revisit and get reminders.',
+      'saved_searches': 'Saved searches',
+      'search_saved': 'Search saved',
+      'remove_saved_search': 'Remove saved search',
       'filters': 'Filters',
       'no_results_found': 'No results found',
       'add_to_favorites': 'Add to favorites',
@@ -109,6 +114,7 @@ class AppLocalizations {
       'upcoming_visits': 'Upcoming visits',
       'no_upcoming_visits': 'No visits scheduled yet',
       'cancel_visit': 'Cancel visit',
+      'visit_reminder': 'Visit reminders',
     },
     'ar': {
       'app_title': 'اكتشف المساحات',
@@ -140,6 +146,11 @@ class AppLocalizations {
       'dark_mode': 'الوضع الداكن',
       'light_mode': 'الوضع الفاتح',
       'search': 'بحث',
+      'save_search': 'حفظ البحث',
+      'save_search_hint': 'احفظ هذا البحث للعودة إليه والحصول على تنبيهات محلية.',
+      'saved_searches': 'عمليات البحث المحفوظة',
+      'search_saved': 'تم حفظ البحث',
+      'remove_saved_search': 'إزالة البحث المحفوظ',
       'filters': 'فلاتر',
       'no_results_found': 'لا توجد نتائج',
       'add_to_favorites': 'إضافة للمفضلة',
@@ -213,6 +224,7 @@ class AppLocalizations {
       'upcoming_visits': 'الزيارات القادمة',
       'no_upcoming_visits': 'لا توجد زيارات مجدولة بعد',
       'cancel_visit': 'إلغاء الزيارة',
+      'visit_reminder': 'تذكيرات الزيارة',
     }
   };
 

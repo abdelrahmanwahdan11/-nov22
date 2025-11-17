@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/item.dart';
+import '../models/saved_search.dart';
 import '../models/visit_request.dart';
 
 class ItemsController extends ChangeNotifier {
@@ -32,6 +33,7 @@ class ItemsController extends ChangeNotifier {
   final List<String> _recentSearches = [];
   final List<String> _recentlyViewed = [];
   final List<VisitRequest> _visits = [];
+  final List<SavedSearch> _savedSearches = [];
   String _searchQuery = '';
   String? _category;
   String? _city;
@@ -54,6 +56,14 @@ class ItemsController extends ChangeNotifier {
       .map((matches) => matches.first)
       .toList();
   List<VisitRequest> get visits => List.unmodifiable(_visits);
+  VisitRequest? get nextVisit {
+    final now = DateTime.now();
+    for (final visit in _visits) {
+      if (visit.dateTime.isAfter(now)) return visit;
+    }
+    return _visits.isNotEmpty ? _visits.first : null;
+  }
+  List<SavedSearch> get savedSearches => List.unmodifiable(_savedSearches);
   String? get category => _category;
   String? get city => _city;
   String get sort => _sort;
@@ -155,6 +165,63 @@ class ItemsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  SavedSearch toggleSaveSearch(String query) {
+    final normalized = query.trim();
+    if (normalized.isEmpty) {
+      throw ArgumentError('Query cannot be empty');
+    }
+    final existingIndex = _savedSearches.indexWhere(
+      (saved) => saved.matches(
+        normalized,
+        category: _category,
+        city: _city,
+        range: _selectedPriceRange,
+      ),
+    );
+    if (existingIndex != -1) {
+      final removed = _savedSearches.removeAt(existingIndex);
+      _persistState();
+      notifyListeners();
+      return removed;
+    }
+    final saved = SavedSearch(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      query: normalized,
+      category: _category,
+      city: _city,
+      minPrice: _selectedPriceRange.start,
+      maxPrice: _selectedPriceRange.end,
+    );
+    _savedSearches.insert(0, saved);
+    _persistState();
+    notifyListeners();
+    return saved;
+  }
+
+  void removeSavedSearch(String id) {
+    _savedSearches.removeWhere((saved) => saved.id == id);
+    _persistState();
+    notifyListeners();
+  }
+
+  void toggleSavedSearchAlerts(String id) {
+    final index = _savedSearches.indexWhere((saved) => saved.id == id);
+    if (index == -1) return;
+    final existing = _savedSearches[index];
+    _savedSearches[index] = SavedSearch(
+      id: existing.id,
+      query: existing.query,
+      category: existing.category,
+      city: existing.city,
+      minPrice: existing.minPrice,
+      maxPrice: existing.maxPrice,
+      alertsEnabled: !existing.alertsEnabled,
+      createdAt: existing.createdAt,
+    );
+    _persistState();
+    notifyListeners();
+  }
+
   void setCategory(String? value) {
     _category = value;
     _persistState();
@@ -177,6 +244,34 @@ class ItemsController extends ChangeNotifier {
     _sort = value;
     _persistState();
     _resetPagination();
+  }
+
+  void applySavedSearch(SavedSearch saved) {
+    _category = saved.category;
+    _city = saved.city;
+    _selectedPriceRange = saved.range ?? _priceBounds;
+    _searchQuery = saved.query;
+    if (_searchQuery.isNotEmpty) {
+      _recentSearches.remove(_searchQuery);
+      _recentSearches.insert(0, _searchQuery);
+      if (_recentSearches.length > 6) {
+        _recentSearches.removeLast();
+      }
+    }
+    _persistState();
+    _resetPagination();
+  }
+
+  bool isSearchSaved(String query) {
+    final normalized = query.trim();
+    return _savedSearches.any(
+      (saved) => saved.matches(
+        normalized,
+        category: _category,
+        city: _city,
+        range: _selectedPriceRange,
+      ),
+    );
   }
 
   VisitRequest scheduleVisit(String itemId, DateTime dateTime, {String? note}) {
@@ -267,6 +362,7 @@ class ItemsController extends ChangeNotifier {
       final savedSearches = prefs.getStringList('recentSearches') ?? [];
       final savedViewed = prefs.getStringList('recentlyViewed') ?? [];
       final savedVisits = prefs.getStringList('visits') ?? [];
+      final savedSearchList = prefs.getStringList('savedSearches') ?? [];
 
       _favorites
         ..clear()
@@ -306,6 +402,20 @@ class ItemsController extends ChangeNotifier {
               .whereType<VisitRequest>()
               .take(10),
         );
+      _savedSearches
+        ..clear()
+        ..addAll(
+          savedSearchList
+              .map((json) {
+                try {
+                  return SavedSearch.fromJson(json);
+                } catch (_) {
+                  return null;
+                }
+              })
+              .whereType<SavedSearch>()
+              .take(10),
+        );
       _resetPagination();
     } finally {
       if (!_readyCompleter.isCompleted) {
@@ -321,6 +431,7 @@ class ItemsController extends ChangeNotifier {
     await prefs.setStringList('recentSearches', _recentSearches);
     await prefs.setStringList('recentlyViewed', _recentlyViewed);
     await prefs.setStringList('visits', _visits.map((visit) => jsonEncode(visit.toMap())).toList());
+    await prefs.setStringList('savedSearches', _savedSearches.map((saved) => saved.toJson()).toList());
     if (_category != null) await prefs.setString('category', _category!);
     if (_city != null) await prefs.setString('city', _city!);
     await prefs.setString('sort', _sort);

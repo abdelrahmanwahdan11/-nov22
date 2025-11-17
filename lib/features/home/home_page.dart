@@ -7,6 +7,7 @@ import '../../core/widgets/filter_chip.dart';
 import '../../core/widgets/item_card.dart';
 import '../../core/widgets/skeleton_card.dart';
 import '../common/controllers/items_controller.dart';
+import '../common/models/visit_request.dart';
 import '../favorites/favorites_page.dart';
 import '../item_details/item_details_page.dart';
 import '../notifications/notifications_page.dart';
@@ -44,12 +45,18 @@ class HomePage extends StatelessWidget {
         animation: itemsController,
         builder: (context, _) {
           final recentlyViewed = itemsController.recentlyViewedItems;
+          final nextVisit = itemsController.nextVisit;
           return RefreshIndicator(
             onRefresh: itemsController.refresh,
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
                 const SizedBox(height: 12),
+                if (nextVisit != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _NextVisitCard(visit: nextVisit, itemsController: itemsController),
+                  ),
                 _HeroCard(itemsController: itemsController),
                 _MapPreview(itemsController: itemsController),
                 if (recentlyViewed.isNotEmpty) ...[
@@ -142,6 +149,59 @@ class HomePage extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _NextVisitCard extends StatelessWidget {
+  const _NextVisitCard({required this.visit, required this.itemsController});
+
+  final VisitRequest visit;
+  final ItemsController itemsController;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final item = itemsController.findItem(visit.itemId);
+    if (item == null) return const SizedBox.shrink();
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Theme.of(context).cardColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 26,
+            backgroundImage: NetworkImage(item.image),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.translate('visit_reminder'), style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 4),
+                Text(item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                Text(visit.formatted(context), style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: t.translate('cancel_visit'),
+            onPressed: () => itemsController.cancelVisit(visit.id),
+            icon: const Icon(Icons.close),
+          ),
+        ],
       ),
     );
   }
