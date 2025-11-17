@@ -38,19 +38,35 @@ class _NotificationsPageState extends State<NotificationsPage> {
           )
         ],
       ),
-      body: ListView.separated(
-        itemBuilder: (context, index) {
-          final item = _items[index];
-          return ListTile(
-            leading: const Icon(IconlyLight.notification),
-            title: Text(item.title),
-            subtitle: Text(item.subtitle),
-            trailing: Text(item.time),
-          );
-        },
-        separatorBuilder: (_, __) => const Divider(height: 0),
-        itemCount: _items.length,
-      ),
+      body: _items.isEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(IconlyLight.tick_square, size: 56, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(height: 12),
+                    Text(t.translate('all_caught_up'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 6),
+                    Text(t.translate('all_caught_up_desc'), textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            )
+          : ListView.separated(
+              itemBuilder: (context, index) {
+                final item = _items[index];
+                return ListTile(
+                  leading: const Icon(IconlyLight.notification),
+                  title: Text(item.title),
+                  subtitle: Text(item.subtitle),
+                  trailing: Text(item.time),
+                );
+              },
+              separatorBuilder: (_, __) => const Divider(height: 0),
+              itemCount: _items.length,
+            ),
     );
   }
 }

@@ -39,6 +39,7 @@ class ItemsController extends ChangeNotifier {
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMore => _hasMore;
   List<String> get favorites => _favorites;
+  List<Item> get favoriteItems => _items.where((item) => _favorites.contains(item.id)).toList();
   List<String> get compare => _compare;
   String? get category => _category;
   String? get city => _city;
@@ -79,6 +80,12 @@ class ItemsController extends ChangeNotifier {
     } else {
       _favorites.add(id);
     }
+    _persistState();
+    notifyListeners();
+  }
+
+  void removeFavorite(String id) {
+    _favorites.remove(id);
     _persistState();
     notifyListeners();
   }

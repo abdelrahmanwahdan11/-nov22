@@ -7,6 +7,7 @@ import '../../core/widgets/filter_chip.dart';
 import '../../core/widgets/item_card.dart';
 import '../../core/widgets/skeleton_card.dart';
 import '../common/controllers/items_controller.dart';
+import '../favorites/favorites_page.dart';
 import '../item_details/item_details_page.dart';
 import '../notifications/notifications_page.dart';
 import '../search/search_page.dart';
@@ -28,6 +29,10 @@ class HomePage extends StatelessWidget {
           IconButton(
             icon: const Icon(IconlyLight.search),
             onPressed: () => Navigator.of(context).pushNamed(SearchPage.route),
+          ),
+          IconButton(
+            icon: const Icon(IconlyLight.heart),
+            onPressed: () => Navigator.of(context).pushNamed(FavoritesPage.route),
           ),
           IconButton(
             icon: const Icon(IconlyLight.notification),

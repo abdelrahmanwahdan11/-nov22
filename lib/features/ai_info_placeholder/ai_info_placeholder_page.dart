@@ -19,6 +19,41 @@ class AiInfoPlaceholderPage extends StatelessWidget {
             Text(t.translate('ai_info_headline'), style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 12),
             Text(t.translate('ai_info_placeholder')),
+            const SizedBox(height: 18),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(t.translate('ai_info_steps_title'), style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    ...[
+                      t.translate('ai_info_step_collect'),
+                      t.translate('ai_info_step_summarize'),
+                      t.translate('ai_info_step_translate'),
+                    ].map((step) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.check_circle, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(step)),
+                            ],
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(t.translate('done')),
+              ),
+            )
           ],
         ),
       ),

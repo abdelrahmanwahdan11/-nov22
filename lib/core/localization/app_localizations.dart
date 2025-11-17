@@ -84,6 +84,15 @@ class AppLocalizations {
       'compare_now': 'Compare now',
       'remove_item': 'Remove item',
       'ai_info_headline': 'AI insight',
+      'favorites_empty_title': 'No favorites yet',
+      'favorites_empty_body': 'Save homes you love to compare, revisit, and share later.',
+      'browse_catalog': 'Browse catalog',
+      'all_caught_up': "You're all caught up!",
+      'all_caught_up_desc': 'We will drop notifications here when new previews arrive.',
+      'ai_info_steps_title': 'How AI info will work soon',
+      'ai_info_step_collect': 'Collect highlights from listing photos and attributes.',
+      'ai_info_step_summarize': 'Summarize selling points and nearby amenities.',
+      'ai_info_step_translate': 'Offer instant bilingual Arabic/English narratives.',
     },
     'ar': {
       'app_title': 'اكتشف المساحات',
@@ -163,6 +172,15 @@ class AppLocalizations {
       'compare_now': 'ابدأ المقارنة',
       'remove_item': 'إزالة العنصر',
       'ai_info_headline': 'لمحة ذكاء اصطناعي',
+      'favorites_empty_title': 'لا توجد مفضلات بعد',
+      'favorites_empty_body': 'احفظ المساحات المفضلة للمقارنة والعودة إليها لاحقاً.',
+      'browse_catalog': 'تصفح الكتالوج',
+      'all_caught_up': 'لا إشعارات جديدة',
+      'all_caught_up_desc': 'سنخبرك هنا عندما تتوفر معاينات أو تحديثات جديدة.',
+      'ai_info_steps_title': 'كيف ستعمل ميزة الذكاء الاصطناعي قريباً',
+      'ai_info_step_collect': 'جمع أبرز المعلومات من الصور والخصائص.',
+      'ai_info_step_summarize': 'تلخيص نقاط التميز والمرافق القريبة.',
+      'ai_info_step_translate': 'تقديم وصف فوري بالعربية والإنجليزية.',
     }
   };
 

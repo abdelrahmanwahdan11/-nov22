@@ -28,7 +28,7 @@ class _ShellPageState extends State<ShellPage> {
       HomePage(itemsController: widget.itemsController),
       CatalogPage(itemsController: widget.itemsController),
       ComparePage(itemsController: widget.itemsController),
-      const ProfilePage(),
+      ProfilePage(itemsController: widget.itemsController),
     ];
     return Scaffold(
       body: IndexedStack(

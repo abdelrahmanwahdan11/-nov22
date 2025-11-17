@@ -7,6 +7,7 @@ import '../../features/auth/register/register_page.dart';
 import '../../features/catalog/catalog_page.dart';
 import '../../features/common/controllers/items_controller.dart';
 import '../../features/compare/compare_page.dart';
+import '../../features/favorites/favorites_page.dart';
 import '../../features/home/home_page.dart';
 import '../../features/item_details/item_details_page.dart';
 import '../../features/notifications/notifications_page.dart';
@@ -38,6 +39,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => CatalogPage(itemsController: items));
       case ComparePage.route:
         return MaterialPageRoute(builder: (_) => ComparePage(itemsController: items));
+      case FavoritesPage.route:
+        return MaterialPageRoute(builder: (_) => FavoritesPage(itemsController: items));
       case SearchPage.route:
         return MaterialPageRoute(builder: (_) => SearchPage(itemsController: items));
       case ItemDetailsPage.route:
@@ -45,7 +48,7 @@ class AppRouter {
           builder: (_) => ItemDetailsPage(item: settings.arguments, itemsController: items),
         );
       case ProfilePage.route:
-        return MaterialPageRoute(builder: (_) => const ProfilePage());
+        return MaterialPageRoute(builder: (_) => ProfilePage(itemsController: items));
       case SettingsPage.route:
         return MaterialPageRoute(builder: (_) => const SettingsPage());
       case NotificationsPage.route:
