@@ -18,6 +18,8 @@ import '../changelog/changelog_page.dart';
 import '../safety/safety_tips_page.dart';
 import '../legal/legal_page.dart';
 import '../support/support_requests_page.dart';
+import '../documents/documents_page.dart';
+import '../services/services_page.dart';
 import '../journey/journey_page.dart';
 import '../insights/insights_page.dart';
 import '../readiness/readiness_page.dart';
@@ -32,6 +34,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final app = AppScope.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(t.translate('profile')),
@@ -108,6 +111,7 @@ class ProfilePage extends StatelessWidget {
                     _ActivityPill(icon: IconlyBold.paper, label: t.translate('saved_searches'), value: itemsController.savedSearches.length),
                     _ActivityPill(icon: IconlyBold.calendar, label: t.translate('upcoming_visits'), value: visits.length),
                     _ActivityPill(icon: Icons.sticky_note_2_rounded, label: t.translate('notes'), value: notes.length),
+                    _ActivityPill(icon: Icons.folder_shared_outlined, label: t.translate('documents'), value: app.documents.length),
                   ],
                 ),
               ),
@@ -128,6 +132,18 @@ class ProfilePage extends StatelessWidget {
                 title: Text(t.translate('affordability_calculator')),
                 subtitle: Text(t.translate('calculator_hint')),
                 onTap: () => Navigator.of(context).pushNamed(AffordabilityCalculatorPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.folder_shared_outlined),
+                title: Text(t.translate('document_center')),
+                subtitle: Text(t.translate('document_suggestions')),
+                onTap: () => Navigator.of(context).pushNamed(DocumentsPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.support_agent_outlined),
+                title: Text(t.translate('services')),
+                subtitle: Text(t.translate('services_intro')),
+                onTap: () => Navigator.of(context).pushNamed(ServicesPage.route),
               ),
               ListTile(
                 leading: const Icon(Icons.help_center_outlined),

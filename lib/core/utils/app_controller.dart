@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme/app_theme.dart';
+import '../../features/common/models/document.dart';
 import '../../features/common/models/support_message.dart';
 
 class AppController extends ChangeNotifier {
@@ -38,6 +39,7 @@ class AppController extends ChangeNotifier {
   double _calcDownPayment = 10;
   double _calcRate = 6.0;
   int _calcYears = 20;
+  List<Document> _documents = [];
 
   ThemeMode get themeMode => _themeMode;
   Color get primaryColor => _primaryColor;
@@ -62,6 +64,7 @@ class AppController extends ChangeNotifier {
   double get calcDownPayment => _calcDownPayment;
   double get calcRate => _calcRate;
   int get calcYears => _calcYears;
+  List<Document> get documents => List.unmodifiable(_documents);
   Future<void> get ready => _readyCompleter.future;
 
   Future<void> _loadPreferences() async {
@@ -99,6 +102,13 @@ class AppController extends ChangeNotifier {
       final decoded = jsonDecode(supportRaw) as List<dynamic>;
       _supportMessages = decoded
           .map((entry) => SupportMessage.fromMap(Map<String, dynamic>.from(entry as Map<dynamic, dynamic>)))
+          .toList();
+    }
+    final documentsRaw = prefs.getString('documents');
+    if (documentsRaw != null && documentsRaw.isNotEmpty) {
+      final decoded = jsonDecode(documentsRaw) as List<dynamic>;
+      _documents = decoded
+          .map((entry) => Document.fromMap(Map<String, dynamic>.from(entry as Map<dynamic, dynamic>)))
           .toList();
     }
     _journeyStepsCompleted = prefs.getStringList('journeyStepsCompleted') ?? [];
@@ -277,6 +287,46 @@ class AppController extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('readinessCompleted', _readinessCompleted);
     notifyListeners();
+  }
+
+  Future<void> addDocument(Document document) async {
+    _documents = [document, ..._documents];
+    await _persistDocuments();
+    notifyListeners();
+  }
+
+  Future<void> updateDocument(String id, {String? status, String? note}) async {
+    _documents = _documents
+        .map(
+          (doc) => doc.id == id
+              ? doc.copyWith(
+                  status: status ?? doc.status,
+                  note: note ?? doc.note,
+                  updatedAt: DateTime.now(),
+                )
+              : doc,
+        )
+        .toList();
+    await _persistDocuments();
+    notifyListeners();
+  }
+
+  Future<void> removeDocument(String id) async {
+    _documents = _documents.where((doc) => doc.id != id).toList();
+    await _persistDocuments();
+    notifyListeners();
+  }
+
+  Future<void> clearDocuments() async {
+    _documents = [];
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('documents');
+    notifyListeners();
+  }
+
+  Future<void> _persistDocuments() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('documents', jsonEncode(_documents.map((e) => e.toMap()).toList()));
   }
 
   Future<void> resetReadiness() async {
