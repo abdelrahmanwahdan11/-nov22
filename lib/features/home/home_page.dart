@@ -22,6 +22,8 @@ import '../changelog/changelog_page.dart';
 import '../safety/safety_tips_page.dart';
 import '../support/support_requests_page.dart';
 import '../legal/legal_page.dart';
+import '../journey/journey_page.dart';
+import '../insights/insights_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.itemsController});
@@ -119,6 +121,16 @@ class HomePage extends StatelessWidget {
                             avatar: const Icon(Icons.rate_review_outlined, size: 18),
                             label: Text(t.translate('feedback')),
                             onPressed: () => Navigator.of(context).pushNamed(FeedbackPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.flag_outlined, size: 18),
+                            label: Text(t.translate('journey_planner')),
+                            onPressed: () => Navigator.of(context).pushNamed(JourneyPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.insights_outlined, size: 18),
+                            label: Text(t.translate('insights')),
+                            onPressed: () => Navigator.of(context).pushNamed(InsightsPage.route),
                           ),
                           ActionChip(
                             avatar: const Icon(Icons.support_agent_outlined, size: 18),

@@ -25,6 +25,8 @@ import '../../features/changelog/changelog_page.dart';
 import '../../features/safety/safety_tips_page.dart';
 import '../../features/legal/legal_page.dart';
 import '../../features/support/support_requests_page.dart';
+import '../../features/journey/journey_page.dart';
+import '../../features/insights/insights_page.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings, ItemsController items) {
@@ -79,6 +81,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const LegalPage());
       case SupportRequestsPage.route:
         return MaterialPageRoute(builder: (_) => const SupportRequestsPage());
+      case JourneyPage.route:
+        return MaterialPageRoute(builder: (_) => JourneyPage(itemsController: items));
+      case InsightsPage.route:
+        return MaterialPageRoute(builder: (_) => InsightsPage(itemsController: items));
       default:
         return MaterialPageRoute(builder: (_) => const SplashPage());
     }

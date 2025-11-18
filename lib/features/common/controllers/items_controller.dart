@@ -44,6 +44,7 @@ class ItemsController extends ChangeNotifier {
   final Completer<void> _readyCompleter = Completer<void>();
 
   List<Item> get items => _filtered;
+  List<Item> get allItems => List.unmodifiable(_items);
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMore => _hasMore;

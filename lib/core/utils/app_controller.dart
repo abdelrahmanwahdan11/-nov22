@@ -31,6 +31,8 @@ class AppController extends ChangeNotifier {
   bool _highContrast = false;
   bool _reduceMotion = false;
   List<SupportMessage> _supportMessages = [];
+  List<String> _journeyStepsCompleted = [];
+  double _budgetTarget = 5000;
 
   ThemeMode get themeMode => _themeMode;
   Color get primaryColor => _primaryColor;
@@ -48,6 +50,8 @@ class AppController extends ChangeNotifier {
   bool get highContrast => _highContrast;
   bool get reduceMotion => _reduceMotion;
   List<SupportMessage> get supportMessages => List.unmodifiable(_supportMessages);
+  List<String> get journeyStepsCompleted => List.unmodifiable(_journeyStepsCompleted);
+  double get budgetTarget => _budgetTarget;
   Future<void> get ready => _readyCompleter.future;
 
   Future<void> _loadPreferences() async {
@@ -87,6 +91,8 @@ class AppController extends ChangeNotifier {
           .map((entry) => SupportMessage.fromMap(Map<String, dynamic>.from(entry as Map<dynamic, dynamic>)))
           .toList();
     }
+    _journeyStepsCompleted = prefs.getStringList('journeyStepsCompleted') ?? [];
+    _budgetTarget = (prefs.getDouble('budgetTarget') ?? 5000).clamp(1000, 20000).toDouble();
     _isReady = true;
     if (!_readyCompleter.isCompleted) {
       _readyCompleter.complete();
@@ -220,5 +226,30 @@ class AppController extends ChangeNotifier {
   Future<void> _persistSupportMessages() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('supportMessages', jsonEncode(_supportMessages.map((e) => e.toMap()).toList()));
+  }
+
+  Future<void> toggleJourneyStep(String id) async {
+    if (_journeyStepsCompleted.contains(id)) {
+      _journeyStepsCompleted.remove(id);
+    } else {
+      _journeyStepsCompleted.add(id);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('journeyStepsCompleted', _journeyStepsCompleted);
+    notifyListeners();
+  }
+
+  Future<void> resetJourneySteps() async {
+    _journeyStepsCompleted.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('journeyStepsCompleted', _journeyStepsCompleted);
+    notifyListeners();
+  }
+
+  Future<void> setBudgetTarget(double value) async {
+    _budgetTarget = value.clamp(1000, 20000).toDouble();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('budgetTarget', _budgetTarget);
+    notifyListeners();
   }
 }
