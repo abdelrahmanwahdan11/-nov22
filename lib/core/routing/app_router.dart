@@ -27,6 +27,8 @@ import '../../features/legal/legal_page.dart';
 import '../../features/support/support_requests_page.dart';
 import '../../features/journey/journey_page.dart';
 import '../../features/insights/insights_page.dart';
+import '../../features/readiness/readiness_page.dart';
+import '../../features/calculator/affordability_calculator_page.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings, ItemsController items) {
@@ -85,6 +87,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => JourneyPage(itemsController: items));
       case InsightsPage.route:
         return MaterialPageRoute(builder: (_) => InsightsPage(itemsController: items));
+      case ReadinessPage.route:
+        return MaterialPageRoute(builder: (_) => ReadinessPage(itemsController: items));
+      case AffordabilityCalculatorPage.route:
+        return MaterialPageRoute(builder: (_) => AffordabilityCalculatorPage(itemsController: items));
       default:
         return MaterialPageRoute(builder: (_) => const SplashPage());
     }

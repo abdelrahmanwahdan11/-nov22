@@ -33,6 +33,11 @@ class AppController extends ChangeNotifier {
   List<SupportMessage> _supportMessages = [];
   List<String> _journeyStepsCompleted = [];
   double _budgetTarget = 5000;
+  List<String> _readinessCompleted = [];
+  double _calcHomePrice = 450000;
+  double _calcDownPayment = 10;
+  double _calcRate = 6.0;
+  int _calcYears = 20;
 
   ThemeMode get themeMode => _themeMode;
   Color get primaryColor => _primaryColor;
@@ -52,6 +57,11 @@ class AppController extends ChangeNotifier {
   List<SupportMessage> get supportMessages => List.unmodifiable(_supportMessages);
   List<String> get journeyStepsCompleted => List.unmodifiable(_journeyStepsCompleted);
   double get budgetTarget => _budgetTarget;
+  List<String> get readinessCompleted => List.unmodifiable(_readinessCompleted);
+  double get calcHomePrice => _calcHomePrice;
+  double get calcDownPayment => _calcDownPayment;
+  double get calcRate => _calcRate;
+  int get calcYears => _calcYears;
   Future<void> get ready => _readyCompleter.future;
 
   Future<void> _loadPreferences() async {
@@ -93,6 +103,11 @@ class AppController extends ChangeNotifier {
     }
     _journeyStepsCompleted = prefs.getStringList('journeyStepsCompleted') ?? [];
     _budgetTarget = (prefs.getDouble('budgetTarget') ?? 5000).clamp(1000, 20000).toDouble();
+    _readinessCompleted = prefs.getStringList('readinessCompleted') ?? [];
+    _calcHomePrice = (prefs.getDouble('calcHomePrice') ?? 450000).clamp(50000, 1500000);
+    _calcDownPayment = (prefs.getDouble('calcDownPayment') ?? 10).clamp(0, 80);
+    _calcRate = (prefs.getDouble('calcRate') ?? 6.0).clamp(0, 25);
+    _calcYears = (prefs.getInt('calcYears') ?? 20).clamp(5, 35);
     _isReady = true;
     if (!_readyCompleter.isCompleted) {
       _readyCompleter.complete();
@@ -250,6 +265,42 @@ class AppController extends ChangeNotifier {
     _budgetTarget = value.clamp(1000, 20000).toDouble();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('budgetTarget', _budgetTarget);
+    notifyListeners();
+  }
+
+  Future<void> toggleReadiness(String id) async {
+    if (_readinessCompleted.contains(id)) {
+      _readinessCompleted.remove(id);
+    } else {
+      _readinessCompleted.add(id);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('readinessCompleted', _readinessCompleted);
+    notifyListeners();
+  }
+
+  Future<void> resetReadiness() async {
+    _readinessCompleted.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('readinessCompleted', _readinessCompleted);
+    notifyListeners();
+  }
+
+  Future<void> updateCalculator({
+    double? price,
+    double? downPayment,
+    double? rate,
+    int? years,
+  }) async {
+    _calcHomePrice = (price ?? _calcHomePrice).clamp(50000, 1500000);
+    _calcDownPayment = (downPayment ?? _calcDownPayment).clamp(0, 80);
+    _calcRate = (rate ?? _calcRate).clamp(0, 25);
+    _calcYears = (years ?? _calcYears).clamp(5, 35);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('calcHomePrice', _calcHomePrice);
+    await prefs.setDouble('calcDownPayment', _calcDownPayment);
+    await prefs.setDouble('calcRate', _calcRate);
+    await prefs.setInt('calcYears', _calcYears);
     notifyListeners();
   }
 }

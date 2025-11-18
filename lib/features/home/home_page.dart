@@ -24,6 +24,8 @@ import '../support/support_requests_page.dart';
 import '../legal/legal_page.dart';
 import '../journey/journey_page.dart';
 import '../insights/insights_page.dart';
+import '../readiness/readiness_page.dart';
+import '../calculator/affordability_calculator_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.itemsController});
@@ -126,6 +128,16 @@ class HomePage extends StatelessWidget {
                             avatar: const Icon(Icons.flag_outlined, size: 18),
                             label: Text(t.translate('journey_planner')),
                             onPressed: () => Navigator.of(context).pushNamed(JourneyPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.checklist_rtl_outlined, size: 18),
+                            label: Text(t.translate('readiness_shortcut')),
+                            onPressed: () => Navigator.of(context).pushNamed(ReadinessPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.calculate_outlined, size: 18),
+                            label: Text(t.translate('calculator_shortcut')),
+                            onPressed: () => Navigator.of(context).pushNamed(AffordabilityCalculatorPage.route),
                           ),
                           ActionChip(
                             avatar: const Icon(Icons.insights_outlined, size: 18),

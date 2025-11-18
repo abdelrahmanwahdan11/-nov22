@@ -9,6 +9,8 @@ import '../../core/utils/app_scope.dart';
 import '../common/controllers/items_controller.dart';
 import '../legal/legal_page.dart';
 import '../support/support_requests_page.dart';
+import '../readiness/readiness_page.dart';
+import '../calculator/affordability_calculator_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key, required this.itemsController});
@@ -135,6 +137,26 @@ class SettingsPage extends StatelessWidget {
                 .toList(),
           ),
           const SizedBox(height: 24),
+          Text(t.translate('planning_tools'), style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Text(t.translate('planning_intro')),
+          ListTile(
+            leading: const Icon(Icons.checklist_outlined),
+            title: Text(t.translate('readiness_checklist')),
+            subtitle: Text(t.translate('readiness_intro')),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+            onTap: () => Navigator.of(context).pushNamed(ReadinessPage.route),
+          ),
+          ListTile(
+            leading: const Icon(Icons.calculate_outlined),
+            title: Text(t.translate('affordability_calculator')),
+            subtitle: Text(t.translate('calculator_hint')),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+            onTap: () => Navigator.of(context).pushNamed(AffordabilityCalculatorPage.route),
+          ),
+          const SizedBox(height: 12),
+          const Divider(),
+          const SizedBox(height: 12),
           Text(t.translate('support_requests'), style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           ListTile(

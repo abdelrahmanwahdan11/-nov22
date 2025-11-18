@@ -20,6 +20,8 @@ import '../legal/legal_page.dart';
 import '../support/support_requests_page.dart';
 import '../journey/journey_page.dart';
 import '../insights/insights_page.dart';
+import '../readiness/readiness_page.dart';
+import '../calculator/affordability_calculator_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key, required this.itemsController});
@@ -114,6 +116,18 @@ class ProfilePage extends StatelessWidget {
                 leading: const Icon(IconlyLight.setting),
                 title: Text(t.translate('settings')),
                 onTap: () => Navigator.of(context).pushNamed(SettingsPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.checklist_outlined),
+                title: Text(t.translate('readiness_checklist')),
+                subtitle: Text(t.translate('readiness_intro')),
+                onTap: () => Navigator.of(context).pushNamed(ReadinessPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.calculate_outlined),
+                title: Text(t.translate('affordability_calculator')),
+                subtitle: Text(t.translate('calculator_hint')),
+                onTap: () => Navigator.of(context).pushNamed(AffordabilityCalculatorPage.route),
               ),
               ListTile(
                 leading: const Icon(Icons.help_center_outlined),
