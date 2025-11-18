@@ -11,6 +11,8 @@ import '../legal/legal_page.dart';
 import '../support/support_requests_page.dart';
 import '../readiness/readiness_page.dart';
 import '../calculator/affordability_calculator_page.dart';
+import '../offline/offline_center_page.dart';
+import '../offers/offers_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key, required this.itemsController});
@@ -166,6 +168,18 @@ class SettingsPage extends StatelessWidget {
             onTap: () => Navigator.of(context).pushNamed(SupportRequestsPage.route),
           ),
           ListTile(
+            leading: const Icon(Icons.handshake_outlined),
+            title: Text(t.translate('offers')),
+            subtitle: Text(t.translate('offers_hint')),
+            onTap: () => Navigator.of(context).pushNamed(OffersPage.route),
+          ),
+          ListTile(
+            leading: const Icon(Icons.offline_pin_outlined),
+            title: Text(t.translate('offline_center')),
+            subtitle: Text(t.translate('offline_mode_hint')),
+            onTap: () => Navigator.of(context).pushNamed(OfflineCenterPage.route),
+          ),
+          ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
             title: Text(t.translate('legal_and_privacy')),
             subtitle: Text(t.translate('privacy_body')),
@@ -234,6 +248,7 @@ class SettingsPage extends StatelessWidget {
               await app.clearFeedback();
               await app.clearDocuments();
               await app.clearReminders();
+              await app.clearOfflineCache();
               if (context.mounted) {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(t.translate('data_cleared'))));

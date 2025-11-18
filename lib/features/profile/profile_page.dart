@@ -26,6 +26,8 @@ import '../journey/journey_page.dart';
 import '../insights/insights_page.dart';
 import '../readiness/readiness_page.dart';
 import '../calculator/affordability_calculator_page.dart';
+import '../offers/offers_page.dart';
+import '../offline/offline_center_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key, required this.itemsController});
@@ -89,6 +91,30 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
+              Row(
+                children: [
+                  _StatCard(
+                    label: t.translate('offers'),
+                    value: itemsController.offers.length.toString(),
+                    icon: Icons.handshake_outlined,
+                    onTap: () => Navigator.of(context).pushNamed(OffersPage.route),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Card(
+                      child: ListTile(
+                        title: Text(t.translate('offline_center')),
+                        subtitle: Text(app.offlineMode
+                            ? t.translate('offline_mode_on')
+                            : t.translate('offline_mode_off')),
+                        trailing: const Icon(Icons.offline_pin_outlined),
+                        onTap: () => Navigator.of(context).pushNamed(OfflineCenterPage.route),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(height: 12),
               Text(t.translate('activity'), style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               Container(
@@ -115,6 +141,7 @@ class ProfilePage extends StatelessWidget {
                     _ActivityPill(icon: Icons.sticky_note_2_rounded, label: t.translate('notes'), value: notes.length),
                     _ActivityPill(icon: Icons.folder_shared_outlined, label: t.translate('documents'), value: app.documents.length),
                     _ActivityPill(icon: Icons.alarm, label: t.translate('reminders'), value: app.reminders.length),
+                    _ActivityPill(icon: Icons.handshake_outlined, label: t.translate('offers'), value: itemsController.offers.length),
                   ],
                 ),
               ),

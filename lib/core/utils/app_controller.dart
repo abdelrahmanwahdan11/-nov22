@@ -42,6 +42,10 @@ class AppController extends ChangeNotifier {
   int _calcYears = 20;
   List<Document> _documents = [];
   List<Reminder> _reminders = [];
+  bool _offlineMode = false;
+  bool _autoSync = true;
+  DateTime? _lastSyncAt;
+  List<String> _offlineCollections = ['favorites', 'visits', 'documents'];
 
   ThemeMode get themeMode => _themeMode;
   Color get primaryColor => _primaryColor;
@@ -68,6 +72,10 @@ class AppController extends ChangeNotifier {
   int get calcYears => _calcYears;
   List<Document> get documents => List.unmodifiable(_documents);
   List<Reminder> get reminders => List.unmodifiable(_reminders);
+  bool get offlineMode => _offlineMode;
+  bool get autoSync => _autoSync;
+  DateTime? get lastSyncAt => _lastSyncAt;
+  List<String> get offlineCollections => List.unmodifiable(_offlineCollections);
   Reminder? get nextReminder {
     if (_reminders.isEmpty) return null;
     final pending = _reminders.where((reminder) => !reminder.done).toList()
@@ -101,6 +109,8 @@ class AppController extends ChangeNotifier {
     _useGridLayout = prefs.getBool('useGridLayout') ?? true;
     _highContrast = prefs.getBool('highContrast') ?? false;
     _reduceMotion = prefs.getBool('reduceMotion') ?? false;
+    _offlineMode = prefs.getBool('offlineMode') ?? false;
+    _autoSync = prefs.getBool('autoSync') ?? true;
     _feedbackRating = prefs.getDouble('feedbackRating') ?? 0;
     final topicsRaw = prefs.getString('feedbackTopics');
     if (topicsRaw != null && topicsRaw.isNotEmpty) {
@@ -110,6 +120,10 @@ class AppController extends ChangeNotifier {
     final feedbackTs = prefs.getInt('feedbackUpdatedAt');
     if (feedbackTs != null) {
       _feedbackUpdatedAt = DateTime.fromMillisecondsSinceEpoch(feedbackTs);
+    }
+    final syncTs = prefs.getInt('lastSyncAt');
+    if (syncTs != null) {
+      _lastSyncAt = DateTime.fromMillisecondsSinceEpoch(syncTs);
     }
     final supportRaw = prefs.getString('supportMessages');
     if (supportRaw != null && supportRaw.isNotEmpty) {
@@ -140,6 +154,7 @@ class AppController extends ChangeNotifier {
     _calcDownPayment = (prefs.getDouble('calcDownPayment') ?? 10).clamp(0, 80);
     _calcRate = (prefs.getDouble('calcRate') ?? 6.0).clamp(0, 25);
     _calcYears = (prefs.getInt('calcYears') ?? 20).clamp(5, 35);
+    _offlineCollections = prefs.getStringList('offlineCollections') ?? _offlineCollections;
     _isReady = true;
     if (!_readyCompleter.isCompleted) {
       _readyCompleter.complete();
@@ -214,6 +229,45 @@ class AppController extends ChangeNotifier {
     _reduceMotion = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('reduceMotion', value);
+    notifyListeners();
+  }
+
+  Future<void> setOfflineMode(bool value) async {
+    _offlineMode = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('offlineMode', value);
+    notifyListeners();
+  }
+
+  Future<void> setAutoSync(bool value) async {
+    _autoSync = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('autoSync', value);
+    notifyListeners();
+  }
+
+  Future<void> updateOfflineCollections(List<String> collections) async {
+    _offlineCollections = collections;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('offlineCollections', collections);
+    notifyListeners();
+  }
+
+  Future<void> markSyncedNow() async {
+    _lastSyncAt = DateTime.now();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('lastSyncAt', _lastSyncAt!.millisecondsSinceEpoch);
+    notifyListeners();
+  }
+
+  Future<void> clearOfflineCache() async {
+    _lastSyncAt = null;
+    _offlineMode = false;
+    _autoSync = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('lastSyncAt');
+    await prefs.remove('offlineMode');
+    await prefs.remove('autoSync');
     notifyListeners();
   }
 

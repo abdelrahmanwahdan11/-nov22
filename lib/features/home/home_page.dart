@@ -32,6 +32,8 @@ import '../documents/documents_page.dart';
 import '../services/services_page.dart';
 import '../reminders/reminders_page.dart';
 import '../activity/activity_timeline_page.dart';
+import '../offers/offers_page.dart';
+import '../offline/offline_center_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.itemsController});
@@ -169,6 +171,11 @@ class HomePage extends StatelessWidget {
                             onPressed: () => Navigator.of(context).pushNamed(DocumentsPage.route),
                           ),
                           ActionChip(
+                            avatar: const Icon(Icons.handshake_outlined, size: 18),
+                            label: Text(t.translate('offers')),
+                            onPressed: () => Navigator.of(context).pushNamed(OffersPage.route),
+                          ),
+                          ActionChip(
                             avatar: const Icon(Icons.support_agent_outlined, size: 18),
                             label: Text(t.translate('services_shortcut')),
                             onPressed: () => Navigator.of(context).pushNamed(ServicesPage.route),
@@ -182,6 +189,11 @@ class HomePage extends StatelessWidget {
                             avatar: const Icon(Icons.support_agent_outlined, size: 18),
                             label: Text(t.translate('support_requests')),
                             onPressed: () => Navigator.of(context).pushNamed(SupportRequestsPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.offline_pin_outlined, size: 18),
+                            label: Text(t.translate('offline_center')),
+                            onPressed: () => Navigator.of(context).pushNamed(OfflineCenterPage.route),
                           ),
                           ActionChip(
                             avatar: const Icon(Icons.privacy_tip_outlined, size: 18),

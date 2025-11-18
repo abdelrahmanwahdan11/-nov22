@@ -95,6 +95,19 @@ class ActivityTimelinePage extends StatelessWidget {
       );
     }
 
+    for (final offer in items.offers) {
+      final item = items.findItem(offer.itemId);
+      entries.add(
+        _ActivityEntry(
+          title: t.translate('offers'),
+          subtitle: '${item?.name ?? t.translate('catalog')} — ${t.translate('offer_status_${offer.status}')} ',
+          date: offer.createdAt,
+          icon: Icons.handshake_outlined,
+          color: Colors.green,
+        ),
+      );
+    }
+
     for (final doc in app.documents) {
       entries.add(
         _ActivityEntry(

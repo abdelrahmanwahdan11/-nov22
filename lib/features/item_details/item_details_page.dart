@@ -178,6 +178,12 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
                   Text(t.translate('ai_info_placeholder')),
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
+                    onPressed: () => _showOfferComposer(context, t),
+                    icon: const Icon(Icons.handshake_outlined),
+                    label: Text(t.translate('propose_offer')),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
                     onPressed: () => showModalBottomSheet(
                       context: context,
                       showDragHandle: true,
@@ -230,6 +236,92 @@ class _ItemDetailsPageState extends State<ItemDetailsPage> {
     );
   }
 }
+
+  void _showOfferComposer(BuildContext context, AppLocalizations t) {
+    final amountController = TextEditingController(text: widget.item.priceValue.toStringAsFixed(0));
+    String status = 'submitted';
+    String note = '';
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 12,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.handshake_outlined),
+                  const SizedBox(width: 8),
+                  Text(t.translate('propose_offer'), style: Theme.of(context).textTheme.titleMedium),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: t.translate('offer_amount'),
+                  prefixText: '\$',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: status,
+                onChanged: (value) => status = value ?? status,
+                decoration: InputDecoration(labelText: t.translate('offer_status_label')),
+                items: const [
+                  DropdownMenuItem(value: 'submitted', child: Text('Submitted')),
+                  DropdownMenuItem(value: 'draft', child: Text('Draft')),
+                  DropdownMenuItem(value: 'accepted', child: Text('Accepted')),
+                  DropdownMenuItem(value: 'declined', child: Text('Declined')),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                decoration: InputDecoration(
+                  labelText: t.translate('offer_note'),
+                  hintText: t.translate('note_hint'),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onChanged: (value) => note = value,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    final amount = double.tryParse(amountController.text.trim()) ?? widget.item.priceValue;
+                    widget.itemsController.createOffer(
+                      itemId: widget.item.id,
+                      amount: amount,
+                      status: status,
+                      note: note,
+                    );
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(t.translate('offer_saved'))));
+                  },
+                  icon: const Icon(Icons.save_alt_outlined),
+                  label: Text(t.translate('save')),
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    ).whenComplete(() => amountController.dispose());
+  }
 
 class _InfoRow extends StatelessWidget {
   const _InfoRow({required this.icon, required this.label, required this.value});

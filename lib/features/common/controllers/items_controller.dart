@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/item.dart';
 import '../models/saved_search.dart';
 import '../models/visit_request.dart';
+import '../models/offer.dart';
 
 class ItemsController extends ChangeNotifier {
   ItemsController() {
@@ -35,6 +36,7 @@ class ItemsController extends ChangeNotifier {
   final List<VisitRequest> _visits = [];
   final List<SavedSearch> _savedSearches = [];
   final Map<String, String> _itemNotes = {};
+  final List<Offer> _offers = [];
   String _searchQuery = '';
   String? _category;
   String? _city;
@@ -59,6 +61,9 @@ class ItemsController extends ChangeNotifier {
       .toList();
   List<VisitRequest> get visits => List.unmodifiable(_visits);
   Map<String, String> get itemNotes => Map.unmodifiable(_itemNotes);
+  List<Offer> get offers => List.unmodifiable(_offers);
+  List<Offer> offersByStatus(String status) =>
+      _offers.where((offer) => offer.status.toLowerCase() == status.toLowerCase()).toList();
   VisitRequest? get nextVisit {
     final now = DateTime.now();
     for (final visit in _visits) {
@@ -171,6 +176,38 @@ class ItemsController extends ChangeNotifier {
 
   void removeNote(String itemId) {
     _itemNotes.remove(itemId);
+    _persistState();
+    notifyListeners();
+  }
+
+  Offer createOffer({required String itemId, required double amount, String status = 'draft', String note = ''}) {
+    final offer = Offer(
+      id: '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(9999)}',
+      itemId: itemId,
+      amount: amount,
+      status: status,
+      note: note,
+      createdAt: DateTime.now(),
+    );
+    _offers.insert(0, offer);
+    _persistState();
+    notifyListeners();
+    return offer;
+  }
+
+  void updateOffer(String id, {String? status, String? note}) {
+    final updated = _offers
+        .map((offer) => offer.id == id ? offer.copyWith(status: status ?? offer.status, note: note ?? offer.note) : offer)
+        .toList();
+    _offers
+      ..clear()
+      ..addAll(updated);
+    _persistState();
+    notifyListeners();
+  }
+
+  void removeOffer(String id) {
+    _offers.removeWhere((offer) => offer.id == id);
     _persistState();
     notifyListeners();
   }
@@ -343,6 +380,7 @@ class ItemsController extends ChangeNotifier {
     _visits.clear();
     _savedSearches.clear();
     _itemNotes.clear();
+    _offers.clear();
     _category = null;
     _city = null;
     _searchQuery = '';
@@ -356,6 +394,7 @@ class ItemsController extends ChangeNotifier {
     await prefs.remove('visits');
     await prefs.remove('savedSearches');
     await prefs.remove('itemNotes');
+    await prefs.remove('offers');
     await prefs.remove('category');
     await prefs.remove('city');
     await prefs.remove('priceStart');
@@ -434,6 +473,7 @@ class ItemsController extends ChangeNotifier {
       final savedVisits = prefs.getStringList('visits') ?? [];
       final savedSearchList = prefs.getStringList('savedSearches') ?? [];
       final savedNotes = prefs.getString('itemNotes');
+      final savedOffers = prefs.getStringList('offers') ?? [];
 
       _favorites
         ..clear()
@@ -487,6 +527,20 @@ class ItemsController extends ChangeNotifier {
               .whereType<SavedSearch>()
               .take(10),
         );
+      _offers
+        ..clear()
+        ..addAll(
+          savedOffers
+              .map((json) {
+                try {
+                  return Offer.fromJson(json);
+                } catch (_) {
+                  return null;
+                }
+              })
+              .whereType<Offer>()
+              .take(12),
+        );
       if (savedNotes != null) {
         try {
           final decoded = jsonDecode(savedNotes) as Map<String, dynamic>;
@@ -512,6 +566,7 @@ class ItemsController extends ChangeNotifier {
     await prefs.setStringList('visits', _visits.map((visit) => jsonEncode(visit.toMap())).toList());
     await prefs.setStringList('savedSearches', _savedSearches.map((saved) => saved.toJson()).toList());
     await prefs.setString('itemNotes', jsonEncode(_itemNotes));
+    await prefs.setStringList('offers', _offers.map((offer) => offer.toJson()).toList());
     if (_category != null) await prefs.setString('category', _category!);
     if (_city != null) await prefs.setString('city', _city!);
     await prefs.setString('sort', _sort);
@@ -527,6 +582,7 @@ class ItemsController extends ChangeNotifier {
       'recentSearches': _recentSearches.length,
       'recentlyViewed': _recentlyViewed.length,
       'visits': _visits.length,
+      'offers': _offers.length,
       'notes': _itemNotes.length,
       'filters': {
         'category': _category,

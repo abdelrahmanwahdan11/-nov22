@@ -33,6 +33,8 @@ import '../../features/documents/documents_page.dart';
 import '../../features/services/services_page.dart';
 import '../../features/reminders/reminders_page.dart';
 import '../../features/activity/activity_timeline_page.dart';
+import '../../features/offers/offers_page.dart';
+import '../../features/offline/offline_center_page.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings, ItemsController items) {
@@ -103,6 +105,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const RemindersPage());
       case ActivityTimelinePage.route:
         return MaterialPageRoute(builder: (_) => ActivityTimelinePage(itemsController: items));
+      case OffersPage.route:
+        return MaterialPageRoute(builder: (_) => OffersPage(itemsController: items));
+      case OfflineCenterPage.route:
+        return MaterialPageRoute(builder: (_) => const OfflineCenterPage());
       default:
         return MaterialPageRoute(builder: (_) => const SplashPage());
     }
