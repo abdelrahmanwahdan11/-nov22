@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../../features/common/models/document.dart';
 import '../../features/common/models/support_message.dart';
+import '../../features/common/models/reminder.dart';
 
 class AppController extends ChangeNotifier {
   AppController() {
@@ -40,6 +41,7 @@ class AppController extends ChangeNotifier {
   double _calcRate = 6.0;
   int _calcYears = 20;
   List<Document> _documents = [];
+  List<Reminder> _reminders = [];
 
   ThemeMode get themeMode => _themeMode;
   Color get primaryColor => _primaryColor;
@@ -65,6 +67,18 @@ class AppController extends ChangeNotifier {
   double get calcRate => _calcRate;
   int get calcYears => _calcYears;
   List<Document> get documents => List.unmodifiable(_documents);
+  List<Reminder> get reminders => List.unmodifiable(_reminders);
+  Reminder? get nextReminder {
+    if (_reminders.isEmpty) return null;
+    final pending = _reminders.where((reminder) => !reminder.done).toList()
+      ..sort((a, b) => a.dueAt.compareTo(b.dueAt));
+    if (pending.isEmpty) return null;
+    final now = DateTime.now();
+    for (final reminder in pending) {
+      if (!reminder.dueAt.isBefore(now)) return reminder;
+    }
+    return pending.first;
+  }
   Future<void> get ready => _readyCompleter.future;
 
   Future<void> _loadPreferences() async {
@@ -103,6 +117,14 @@ class AppController extends ChangeNotifier {
       _supportMessages = decoded
           .map((entry) => SupportMessage.fromMap(Map<String, dynamic>.from(entry as Map<dynamic, dynamic>)))
           .toList();
+    }
+    final remindersRaw = prefs.getString('reminders');
+    if (remindersRaw != null && remindersRaw.isNotEmpty) {
+      final decoded = jsonDecode(remindersRaw) as List<dynamic>;
+      _reminders = decoded
+          .map((entry) => Reminder.fromMap(Map<String, dynamic>.from(entry as Map<dynamic, dynamic>)))
+          .toList();
+      _reminders.sort((a, b) => a.dueAt.compareTo(b.dueAt));
     }
     final documentsRaw = prefs.getString('documents');
     if (documentsRaw != null && documentsRaw.isNotEmpty) {
@@ -248,9 +270,41 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> addReminder(Reminder reminder) async {
+    _reminders = [..._reminders, reminder]..sort((a, b) => a.dueAt.compareTo(b.dueAt));
+    await _persistReminders();
+    notifyListeners();
+  }
+
+  Future<void> toggleReminderDone(String id) async {
+    _reminders = _reminders
+        .map((reminder) => reminder.id == id ? reminder.copyWith(done: !reminder.done) : reminder)
+        .toList();
+    await _persistReminders();
+    notifyListeners();
+  }
+
+  Future<void> removeReminder(String id) async {
+    _reminders = _reminders.where((reminder) => reminder.id != id).toList();
+    await _persistReminders();
+    notifyListeners();
+  }
+
+  Future<void> clearReminders() async {
+    _reminders = [];
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('reminders');
+    notifyListeners();
+  }
+
   Future<void> _persistSupportMessages() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('supportMessages', jsonEncode(_supportMessages.map((e) => e.toMap()).toList()));
+  }
+
+  Future<void> _persistReminders() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('reminders', jsonEncode(_reminders.map((e) => e.toMap()).toList()));
   }
 
   Future<void> toggleJourneyStep(String id) async {

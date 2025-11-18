@@ -233,6 +233,7 @@ class SettingsPage extends StatelessWidget {
               await app.clearSupportMessages();
               await app.clearFeedback();
               await app.clearDocuments();
+              await app.clearReminders();
               if (context.mounted) {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(t.translate('data_cleared'))));

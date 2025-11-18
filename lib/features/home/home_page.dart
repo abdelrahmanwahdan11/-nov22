@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:iconly/iconly.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/localization/app_localizations.dart';
 import '../../core/widgets/filter_chip.dart';
@@ -10,6 +11,7 @@ import '../../core/utils/app_scope.dart';
 import '../about/about_page.dart';
 import '../common/controllers/items_controller.dart';
 import '../common/models/visit_request.dart';
+import '../common/models/reminder.dart';
 import '../favorites/favorites_page.dart';
 import '../guides/guides_page.dart';
 import '../help/help_center_page.dart';
@@ -28,6 +30,8 @@ import '../readiness/readiness_page.dart';
 import '../calculator/affordability_calculator_page.dart';
 import '../documents/documents_page.dart';
 import '../services/services_page.dart';
+import '../reminders/reminders_page.dart';
+import '../activity/activity_timeline_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.itemsController});
@@ -66,6 +70,8 @@ class HomePage extends StatelessWidget {
         builder: (context, _) {
           final recentlyViewed = itemsController.recentlyViewedItems;
           final nextVisit = itemsController.nextVisit;
+          final app = AppScope.of(context);
+          final nextReminder = app.nextReminder;
           final compactCards = AppScope.of(context).compactCards;
           return RefreshIndicator(
             onRefresh: itemsController.refresh,
@@ -77,6 +83,11 @@ class HomePage extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: _NextVisitCard(visit: nextVisit, itemsController: itemsController),
+                  ),
+                if (nextReminder != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: _ReminderPeek(reminder: nextReminder),
                   ),
                 _HeroCard(itemsController: itemsController),
                 _MapPreview(itemsController: itemsController),
@@ -102,6 +113,11 @@ class HomePage extends StatelessWidget {
                             onPressed: () => Navigator.of(context).pushNamed(HelpCenterPage.route),
                           ),
                           ActionChip(
+                            avatar: const Icon(Icons.alarm, size: 18),
+                            label: Text(t.translate('reminders')),
+                            onPressed: () => Navigator.of(context).pushNamed(RemindersPage.route),
+                          ),
+                          ActionChip(
                             avatar: const Icon(Icons.menu_book_outlined, size: 18),
                             label: Text(t.translate('guides')),
                             onPressed: () => Navigator.of(context).pushNamed(GuidesPage.route),
@@ -110,6 +126,12 @@ class HomePage extends StatelessWidget {
                             avatar: const Icon(Icons.info_outline, size: 18),
                             label: Text(t.translate('about_app')),
                             onPressed: () => Navigator.of(context).pushNamed(AboutPage.route),
+                          ),
+                          ActionChip(
+                            avatar: const Icon(Icons.timeline_outlined, size: 18),
+                            label: Text(t.translate('activity_timeline')),
+                            onPressed: () => Navigator.of(context)
+                                .pushNamed(ActivityTimelinePage.route),
                           ),
                           ActionChip(
                             avatar: const Icon(Icons.shield_outlined, size: 18),
@@ -405,6 +427,45 @@ class _NextVisitCard extends StatelessWidget {
             onPressed: () => itemsController.cancelVisit(visit.id),
             icon: const Icon(Icons.close),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReminderPeek extends StatelessWidget {
+  const _ReminderPeek({required this.reminder});
+
+  final Reminder reminder;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final dueLabel = DateFormat.yMMMd().add_Hm().format(reminder.dueAt);
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.alarm, size: 28),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.translate('upcoming_reminder'), style: Theme.of(context).textTheme.titleMedium),
+                Text(reminder.title, style: Theme.of(context).textTheme.bodyLarge),
+                Text('${t.translate('due')}: $dueLabel'),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pushNamed(RemindersPage.route),
+            child: Text(t.translate('view_all')),
+          )
         ],
       ),
     );

@@ -31,6 +31,8 @@ import '../../features/readiness/readiness_page.dart';
 import '../../features/calculator/affordability_calculator_page.dart';
 import '../../features/documents/documents_page.dart';
 import '../../features/services/services_page.dart';
+import '../../features/reminders/reminders_page.dart';
+import '../../features/activity/activity_timeline_page.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings, ItemsController items) {
@@ -97,6 +99,10 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const DocumentsPage());
       case ServicesPage.route:
         return MaterialPageRoute(builder: (_) => const ServicesPage());
+      case RemindersPage.route:
+        return MaterialPageRoute(builder: (_) => const RemindersPage());
+      case ActivityTimelinePage.route:
+        return MaterialPageRoute(builder: (_) => ActivityTimelinePage(itemsController: items));
       default:
         return MaterialPageRoute(builder: (_) => const SplashPage());
     }

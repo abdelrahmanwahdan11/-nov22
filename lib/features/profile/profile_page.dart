@@ -18,6 +18,8 @@ import '../changelog/changelog_page.dart';
 import '../safety/safety_tips_page.dart';
 import '../legal/legal_page.dart';
 import '../support/support_requests_page.dart';
+import '../reminders/reminders_page.dart';
+import '../activity/activity_timeline_page.dart';
 import '../documents/documents_page.dart';
 import '../services/services_page.dart';
 import '../journey/journey_page.dart';
@@ -112,6 +114,7 @@ class ProfilePage extends StatelessWidget {
                     _ActivityPill(icon: IconlyBold.calendar, label: t.translate('upcoming_visits'), value: visits.length),
                     _ActivityPill(icon: Icons.sticky_note_2_rounded, label: t.translate('notes'), value: notes.length),
                     _ActivityPill(icon: Icons.folder_shared_outlined, label: t.translate('documents'), value: app.documents.length),
+                    _ActivityPill(icon: Icons.alarm, label: t.translate('reminders'), value: app.reminders.length),
                   ],
                 ),
               ),
@@ -138,6 +141,18 @@ class ProfilePage extends StatelessWidget {
                 title: Text(t.translate('document_center')),
                 subtitle: Text(t.translate('document_suggestions')),
                 onTap: () => Navigator.of(context).pushNamed(DocumentsPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.alarm),
+                title: Text(t.translate('reminders')),
+                subtitle: Text(t.translate('reminder_notes_hint')),
+                onTap: () => Navigator.of(context).pushNamed(RemindersPage.route),
+              ),
+              ListTile(
+                leading: const Icon(Icons.timeline_outlined),
+                title: Text(t.translate('activity_timeline')),
+                subtitle: Text(t.translate('activity_empty')),
+                onTap: () => Navigator.of(context).pushNamed(ActivityTimelinePage.route),
               ),
               ListTile(
                 leading: const Icon(Icons.support_agent_outlined),
